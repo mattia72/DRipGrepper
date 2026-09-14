@@ -32,7 +32,8 @@ uses
 	RipGrepper.UI.Components.HistoryButtonedEdit,
 	RipGrepper.UI.SVGIconDataModule,
 	SVGIconVirtualImageList,
-	Spring;
+	Spring, 
+	Vcl.VirtualImageList;
 
 type
 
@@ -527,10 +528,8 @@ begin
 	end;
 
 	if MainFrame.GetCheckAllResultsState(sCaption, sHint) then begin
-		ActionCheckAllResults.ImageIndex := IMG_IDX_UNCHECK_ALL_RESULTS;
 		ActionCheckAllResults.ImageName := 'checkbox-multiple-blank-outline';
 	end else begin
-		ActionCheckAllResults.ImageIndex := IMG_IDX_CHECK_ALL_RESULTS;
 		ActionCheckAllResults.ImageName := 'checkbox-multiple-marked-outline';
 	end;
 	ActionCheckAllResults.Caption := sCaption;
