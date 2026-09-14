@@ -370,7 +370,8 @@ end;
 
 procedure TRipGrepperTopFrame.ActionExpandCollapseUpdate;
 begin
-	ActionExpandCollapse.ImageIndex := IfThen(Settings.NodeLookSettings.ExpandNodes, IMG_IDX_COLLAPSE, IMG_IDX_EXPAND);
+	ActionExpandCollapse.ImageName := 
+		IfThen(Settings.NodeLookSettings.ExpandNodes, 'arrow-collapse-vertical', 'arrow-expand-vertical');
 	ActionExpandCollapse.Hint := IfThen(Settings.NodeLookSettings.ExpandNodes, 'Collapse Nodes', 'Expand Nodes');
 end;
 
@@ -384,8 +385,8 @@ end;
 
 procedure TRipGrepperTopFrame.ActionIndentLineUpdate();
 begin
-	tbIndentLines.ImageIndex :=
-	{ } IfThen(Settings.NodeLookSettings.IndentLines, IMG_IDX_INDENT_OFF, IMG_IDX_INDENT_ON);
+	tbIndentLines.ImageName :=
+	{ } IfThen(Settings.NodeLookSettings.IndentLines, 'format-align-left', 'format-align-right');
 end;
 
 procedure TRipGrepperTopFrame.ActionOpenWithExecute(Sender : TObject);
@@ -724,8 +725,8 @@ end;
 procedure TRipGrepperTopFrame.ActionShowRelativePathUpdate;
 begin
 	// tbShowRelativePath.Down := Settings.NodeLookSettings.ShowRelativePath;
-	ActionShowRelativePath.ImageIndex := Ifthen(Settings.NodeLookSettings.ShowRelativePath, IMG_IDX_SHOW_ABS_PATH,
-		IMG_IDX_SHOW_RELATIVE_PATH);
+	ActionShowRelativePath.ImageName := 
+		{ } Ifthen(Settings.NodeLookSettings.ShowRelativePath, 'full-path', 'relative-path');
 end;
 
 procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);
@@ -1045,7 +1046,7 @@ end;
 
 function TRipGrepperTopFrame.IsFilterOn : Boolean;
 begin
-	Result := edtFilter.RightButton.ImageIndex = IMG_IDX_FILTER_ON;
+	Result := edtFilter.RightButton.ImageName = 'filter';
 end;
 
 function TRipGrepperTopFrame.IsRgReplaceMode : Boolean;
@@ -1128,8 +1129,8 @@ end;
 
 procedure TRipGrepperTopFrame.SetFilterBtnImage(const _bOn : Boolean = True);
 begin
-	edtFilter.RightButton.ImageIndex :=
-	{ } IfThen(_bOn and (edtFilter.Text <> ''), IMG_IDX_FILTER_ON, IMG_IDX_FILTER_OFF);
+	edtFilter.RightButton.ImageName :=
+	{ } IfThen(_bOn and (edtFilter.Text <> ''), 'filter', 'filter-outline');
 end;
 
 procedure TRipGrepperTopFrame.AddDisabledIconVariant(const _sIconName : string);
@@ -1230,8 +1231,8 @@ begin
 	// ActionSaveAllReplacement.Enabled := EGuiReplaceMode.grmSaveEnabled in FGuiReplaceModes;
 	ActionCheckAllResultsUpdate(self);
 	edtReplace.Enabled := EGuiReplaceMode.grmEditEnabled in FGuiReplaceModes;
-	edtReplace.RightButton.ImageIndex := IfThen(
-		{ } (EGuiReplaceMode.grmActive in FGuiReplaceModes), IMG_IDX_REPLACE_ON, IMG_IDX_REPLACE_OFF);
+	edtReplace.RightButton.ImageName := IfThen(
+		{ } (EGuiReplaceMode.grmActive in FGuiReplaceModes), 'file-replace', 'file-replace-outline');
 
 	if (not edtReplace.Enabled) and (edtReplace.Text = '') then begin
 		ChangeButtonedEditTextButSkipChangeEvent(edtReplace, edtReplace.TextHint);
