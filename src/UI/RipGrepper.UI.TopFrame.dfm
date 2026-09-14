@@ -1,7 +1,7 @@
 object RipGrepperTopFrame: TRipGrepperTopFrame
   Left = 0
   Top = 0
-  Width = 817
+  Width = 894
   Height = 26
   Align = alTop
   ParentBackground = False
@@ -10,7 +10,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
   object pnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 817
+    Width = 894
     Height = 26
     Align = alClient
     BevelOuter = bvNone
@@ -18,12 +18,11 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     TabOrder = 0
     object tbarConfig: TToolBar
       AlignWithMargins = True
-      Left = 781
+      Left = 858
       Top = 3
       Width = 33
       Height = 20
       Align = alRight
-      AutoSize = True
       ButtonHeight = 23
       ButtonWidth = 25
       Caption = 'tbarConfig'
@@ -36,7 +35,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Top = 0
         Width = 8
         Caption = 'ToolButton5'
-        ImageName = 'Search\view-refresh-symbolic'
         Style = tbsSeparator
       end
       object tbConfigure: TToolButton
@@ -53,7 +51,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       AlignWithMargins = True
       Left = 190
       Top = 0
-      Width = 457
+      Width = 534
       Height = 23
       Align = alNone
       AutoSize = True
@@ -94,33 +92,33 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Left = 66
         Top = 0
         Action = ActionShowDateColumns
-        Style = tbsDropDown
         DropdownMenu = PopupMenuDateColumns
+        Style = tbsDropDown
       end
       object ToolButton10: TToolButton
-        Left = 91
+        Left = 110
         Top = 0
         Width = 8
         Caption = 'ToolButton10'
         Style = tbsSeparator
       end
       object tbAlternateRowColors: TToolButton
-        Left = 99
+        Left = 118
         Top = 0
         Action = ActionAlternateRowColors
       end
       object tbShowFileIcon: TToolButton
-        Left = 124
+        Left = 143
         Top = 0
         Action = ActionShowFileIcons
       end
       object tbIndentLines: TToolButton
-        Left = 149
+        Left = 168
         Top = 0
         Action = ActionIndentLine
       end
       object ToolButton4: TToolButton
-        Left = 174
+        Left = 193
         Top = 0
         Width = 8
         Caption = 'ToolButton4'
@@ -128,7 +126,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Style = tbsSeparator
       end
       object edtFilter: THistoryButtonedEdit
-        Left = 149
+        Left = 201
         Top = 0
         Width = 121
         Height = 23
@@ -148,7 +146,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         OnRightButtonClick = edtFilterRightButtonClick
       end
       object ToolButton9: TToolButton
-        Left = 270
+        Left = 322
         Top = 0
         Width = 8
         Caption = 'ToolButton9'
@@ -156,7 +154,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Style = tbsSeparator
       end
       object edtReplace: THistoryButtonedEdit
-        Left = 311
+        Left = 330
         Top = 0
         Width = 121
         Height = 23
@@ -176,17 +174,17 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         OnRightButtonClick = edtReplaceRightButtonClick
       end
       object tbCheckAllResults: TToolButton
-        Left = 242
+        Left = 451
         Top = 0
         Action = ActionCheckAllResults
       end
       object tbSaveReplacement: TToolButton
-        Left = 251
+        Left = 476
         Top = 0
         Action = ActionSaveReplacement
       end
       object ToolButton6: TToolButton
-        Left = 267
+        Left = 501
         Top = 0
         Width = 8
         Caption = 'ToolButton6'
@@ -194,7 +192,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
         Style = tbsSeparator
       end
       object tbOpenWith: TToolButton
-        Left = 275
+        Left = 509
         Top = 0
         Action = ActionOpenWith
         ImageIndex = 17
@@ -513,6 +511,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
     end
   end
   object SvgImgLstTopFrame: TSVGIconVirtualImageList
+    Images = <>
     ImageCollection = SVGIconDataModule.SVGIconImageCollection1
     Images = <
       item
@@ -605,7 +604,6 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       end>
     FixedColor = clGrayText
     AntiAliasColor = clBtnShadow
-    Scaled = True
     Left = 651
   end
 end
