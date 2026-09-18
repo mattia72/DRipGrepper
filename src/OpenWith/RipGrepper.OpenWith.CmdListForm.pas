@@ -34,8 +34,6 @@ type
 		ActionOk : TAction;
 		ActionCancel : TAction;
 		ImageListIcons : TImageList;
-		btnView : TButton;
-		ActionSwitchView : TAction;
 		btnConfig : TButton;
 		ActionShowConfig : TAction;
 		pnlMain : TPanel;
@@ -48,8 +46,6 @@ type
 		procedure ActionCancelExecute(Sender : TObject);
 		procedure ActionShowConfigExecute(Sender : TObject);
 		procedure ActionOkExecute(Sender : TObject);
-		procedure ActionSwitchViewExecute(Sender : TObject);
-		procedure ActionSwitchViewUpdate(Sender : TObject);
 		procedure FormResize(Sender : TObject);
 		procedure FormShow(Sender : TObject);
 		procedure lbCommandsDblClick(Sender : TObject);
@@ -62,15 +58,12 @@ type
 			FOrigMemoHeight : Integer;
 			FOrigTopPanelHeight : Integer;
 			FSettings : TOpenWithSettings;
-			FViewStyleIndex : Integer;
 
 			procedure CreateScaledIcons(const bUpdateScaler : Boolean = False);
 			class function GetEnabledCmds(const _settings : TOpenWithSettings) : TArray<TCommandItem>;
 			function GetFileNameFromCfg(const _ci : TCommandItem): string;
-			function GetViewStyleIndex : Integer;
 			procedure SaveOrigHeights;
 			procedure SetMemoHeightByLineCount;
-			property ViewStyleIndex : Integer read GetViewStyleIndex;
 
 		public
 			constructor Create(_owner : TComponent; const _settings : TOpenWithSettings; const _colorTheme : string); reintroduce;
@@ -79,17 +72,12 @@ type
 			procedure LoadEnbledCmds;
 	end;
 
-const
-	LISTVIEW_TYPES : TArray<TViewStyle> = [vsList, vsIcon, vsReport, vsSmallIcon];
-	LISTVIEW_TYPE_TEXTS : TArray<string> = ['List', 'Icon', 'Report', 'SmallIcon'];
-
 implementation
 
 uses
 	Winapi.ShellAPI,
 	System.IOUtils,
 	RipGrepper.OpenWith.ConfigForm,
-	System.Math,
 	RipGrepper.OpenWith.Constants,
 	RipGrepper.Tools.DebugUtils;
 
@@ -103,7 +91,6 @@ begin
 	lbCommands.items.Clear;
 
 	ImageListIcons.ColorDepth := TColorDepth.cd32Bit;
-	FViewStyleIndex := 0;
 	FSettings := _settings;
 	FColorTheme := _colorTheme;
 	// FSettings.ReLoad; TODO: AlreadyRead should be set
@@ -130,19 +117,6 @@ procedure TOpenWithCmdList.ActionOkExecute(Sender : TObject);
 begin
 	FSettings.StoreToPersister;
 	ModalResult := mrOk;
-end;
-
-procedure TOpenWithCmdList.ActionSwitchViewExecute(Sender : TObject);
-begin
-	lbCommands.ViewStyle := LISTVIEW_TYPES[ViewStyleIndex];
-end;
-
-procedure TOpenWithCmdList.ActionSwitchViewUpdate(Sender : TObject);
-begin
-	var
-	idx := IfThen((FViewStyleIndex + 1) <= (Length(LISTVIEW_TYPES) - 1), FViewStyleIndex + 1, 0);
-	ActionSwitchView.ImageIndex := idx + 2;
-	ActionSwitchView.Hint := 'Change View ' + LISTVIEW_TYPE_TEXTS[idx];
 end;
 
 class function TOpenWithCmdList.CreateAndShow(const _settings : TOpenWithSettings; const _colorTheme : string) : string;
@@ -238,14 +212,6 @@ begin
 		sFileName := sPath;
 	end;
 	Result := sFileName;
-end;
-
-function TOpenWithCmdList.GetViewStyleIndex : Integer;
-begin
-	FViewStyleIndex := IfThen(FViewStyleIndex < Length(LISTVIEW_TYPES) - 1, FViewStyleIndex + 1);
-	// skip report
-	FViewStyleIndex := IfThen(FViewStyleIndex = 2, FViewStyleIndex + 1, FViewStyleIndex);
-	Result := (FViewStyleIndex mod Length(LISTVIEW_TYPES));
 end;
 
 procedure TOpenWithCmdList.InitCtrlsTexts;
