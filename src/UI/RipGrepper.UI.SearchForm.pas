@@ -361,10 +361,10 @@ begin
 	SetRgOutputOptionsPanel(_settings);
 
 	lblPaths.Images := SVGIconImageList1;
-	lblPaths.ImageIndexWarning := 16;
-	lblPaths.ImageIndexError := 17;
-	lblPaths.ImageIndexInfo := 18;
-	lblPaths.ImageIndexQuestion := 19;
+	lblPaths.ImageNameWarning := 'icon-warning';
+	lblPaths.ImageNameError := 'icon-error';
+	lblPaths.ImageNameInfo := 'icon-info';
+	lblPaths.ImageNameQuestion := 'icon-question';
 
 	// Disable theme font painting so Font.Color works on cmbSearchDir
 	cmbSearchDir.StyleElements := cmbSearchDir.StyleElements - [seFont];
