@@ -24,7 +24,8 @@ uses
 	RipGrepper.UI.BaseForm,
 	Vcl.ComCtrls,
 	RipGrepper.UI.SVGIconDataModule,
-	SVGIconVirtualImageList;
+	SVGIconVirtualImageList, 
+	Vcl.VirtualImageList;
 
 type
 

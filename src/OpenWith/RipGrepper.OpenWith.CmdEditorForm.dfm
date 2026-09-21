@@ -4,27 +4,43 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
   ClientWidth = 468
   OnShow = FormShow
   TextHeight = 15
-  object Panel1: TPanel
+  inherited PanelBottom: TPanel
+    Top = 384
+    Width = 468
+    TabOrder = 1
+    inherited btnOk: TButton
+      Left = 312
+      Top = 14
+      Action = ActionOk
+    end
+    inherited btnCancel: TButton
+      Left = 393
+      Top = 14
+      Action = ActionCancel
+    end
+  end
+  object Panel1: TPanel [1]
     Left = 0
     Top = 0
     Width = 468
     Height = 384
     Align = alClient
+    BevelOuter = bvNone
     Caption = 'Panel1'
     ShowCaption = False
     TabOrder = 0
     object GroupBox1: TGroupBox
       AlignWithMargins = True
-      Left = 4
-      Top = 4
-      Width = 460
-      Height = 237
+      Left = 3
+      Top = 3
+      Width = 462
+      Height = 230
       Align = alTop
       Caption = 'Settings'
-      TabOrder = 2
+      TabOrder = 0
       DesignSize = (
-        460
-        237)
+        462
+        230)
       object Label1: TLabel
         AlignWithMargins = True
         Left = 10
@@ -149,20 +165,21 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
     end
     object GroupBox2: TGroupBox
       AlignWithMargins = True
-      Left = 4
-      Top = 247
-      Width = 460
+      Left = 3
+      Top = 239
+      Width = 462
       Height = 141
       Margins.Bottom = 4
       Align = alBottom
       Anchors = [akLeft, akTop, akRight, akBottom]
       Caption = 'Help'
-      TabOrder = 3
+      TabOrder = 1
       object RichEdit1: TRichEdit
-        Left = 2
-        Top = 17
-        Width = 456
-        Height = 122
+        AlignWithMargins = True
+        Left = 5
+        Top = 20
+        Width = 452
+        Height = 116
         Align = alClient
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -194,46 +211,44 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
       end
     end
   end
-  inherited PanelBottom: TPanel
-    inherited btnOk: TButton
-      Action = ActionOk
-    end
-    inherited btnCancel: TButton
-      Action = ActionCancel
-    end
-  end
   object SVGIconImageList1: TSVGIconVirtualImageList
-    ImageCollection = SVGIconDataModule.SVGIconImageCollection1
     Images = <
       item
+        CollectionIndex = 52
         CollectionName = 'reply'
         Name = 'reply'
       end
       item
+        CollectionIndex = 53
         CollectionName = 'arrow-up'
         Name = 'arrow-up'
       end
       item
+        CollectionIndex = 54
         CollectionName = 'arrow-down'
         Name = 'arrow-down'
       end
       item
+        CollectionIndex = 18
         CollectionName = 'rocket'
         Name = 'rocket'
       end
       item
+        CollectionIndex = 55
         CollectionName = 'add'
         Name = 'add'
       end
       item
+        CollectionIndex = 56
         CollectionName = 'remove'
         Name = 'remove'
       end
       item
+        CollectionIndex = 48
         CollectionName = 'folder-opened'
         Name = 'folder-opened'
       end>
-    Scaled = True
+    ImageCollection = SVGIconDataModule.SVGIconImageCollection1
     Left = 343
     Top = 288
   end

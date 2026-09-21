@@ -2,8 +2,8 @@ inherited OpenWithCmdList: TOpenWithCmdList
   Left = 738
   Top = 170
   Caption = 'Open With...'
-  ClientHeight = 277
-  ClientWidth = 360
+  ClientHeight = 279
+  ClientWidth = 421
   Icon.Data = {
     0000010001002020000001002000A81000001600000028000000200000004000
     0000010020000000000000100000130B0000130B000000000000000000000000
@@ -142,20 +142,27 @@ inherited OpenWithCmdList: TOpenWithCmdList
   Position = poScreenCenter
   OnResize = FormResize
   OnShow = FormShow
-  TextHeight = 14
+  TextHeight = 15
   inherited PanelBottom: TPanel
+    Top = 234
+    Width = 421
+    TabOrder = 2
     inherited btnOk: TButton
+      Left = 257
+      Top = 11
       Action = ActionOk
     end
     inherited btnCancel: TButton
+      Left = 338
+      Top = 11
       Action = ActionCancel
     end
   end
-  object pnlMain: TPanel
+  object pnlMain: TPanel [1]
     Left = 0
     Top = 71
-    Width = 330
-    Height = 172
+    Width = 391
+    Height = 163
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 0
@@ -168,8 +175,8 @@ inherited OpenWithCmdList: TOpenWithCmdList
       AlignWithMargins = True
       Left = 8
       Top = 8
-      Width = 324
-      Height = 164
+      Width = 383
+      Height = 147
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 0
@@ -189,7 +196,6 @@ inherited OpenWithCmdList: TOpenWithCmdList
           AutoSize = True
           Caption = 'Description'
         end>
-      Items.ItemData = {050000000000000000}
       ReadOnly = True
       RowSelect = True
       ParentShowHint = False
@@ -200,11 +206,11 @@ inherited OpenWithCmdList: TOpenWithCmdList
       OnKeyDown = lbCommandsKeyDown
     end
   end
-  object pnl_Right: TPanel
-    Left = 330
+  object pnl_Right: TPanel [2]
+    Left = 391
     Top = 71
     Width = 30
-    Height = 172
+    Height = 163
     Margins.Left = 0
     Align = alRight
     BevelOuter = bvNone
@@ -212,7 +218,7 @@ inherited OpenWithCmdList: TOpenWithCmdList
     TabOrder = 3
     DesignSize = (
       30
-      172)
+      163)
     object btnConfig: TButton
       AlignWithMargins = True
       Left = 1
@@ -232,32 +238,11 @@ inherited OpenWithCmdList: TOpenWithCmdList
       ShowHint = True
       TabOrder = 0
     end
-    object btnView: TButton
-      AlignWithMargins = True
-      Left = 1
-      Top = 33
-      Width = 25
-      Height = 25
-      Margins.Left = 8
-      Margins.Top = 8
-      Margins.Right = 8
-      Margins.Bottom = 8
-      Action = ActionSwitchView
-      Anchors = [akTop, akRight]
-      Enabled = False
-      ImageAlignment = iaCenter
-      ImageName = 'eye'
-      Images = SVGIconImageList1
-      ParentShowHint = False
-      ShowHint = True
-      TabOrder = 1
-      Visible = False
-    end
   end
-  object pnl_Top: TPanel
+  object pnl_Top: TPanel [3]
     Left = 0
     Top = 0
-    Width = 360
+    Width = 421
     Height = 71
     Align = alTop
     BevelOuter = bvNone
@@ -268,8 +253,8 @@ inherited OpenWithCmdList: TOpenWithCmdList
       AlignWithMargins = True
       Left = 8
       Top = 8
-      Width = 346
-      Height = 14
+      Width = 405
+      Height = 15
       Margins.Left = 8
       Margins.Top = 8
       Margins.Right = 8
@@ -280,9 +265,9 @@ inherited OpenWithCmdList: TOpenWithCmdList
     object lblHint2: TLabel
       AlignWithMargins = True
       Left = 8
-      Top = 49
-      Width = 346
-      Height = 14
+      Top = 50
+      Width = 405
+      Height = 15
       Margins.Left = 8
       Margins.Top = 0
       Margins.Right = 8
@@ -293,8 +278,8 @@ inherited OpenWithCmdList: TOpenWithCmdList
     object Memo1: TMemo
       AlignWithMargins = True
       Left = 3
-      Top = 25
-      Width = 356
+      Top = 26
+      Width = 415
       Height = 21
       TabStop = False
       Align = alTop
@@ -308,7 +293,6 @@ inherited OpenWithCmdList: TOpenWithCmdList
     end
   end
   object alActions: TActionList
-    Images = ImageListIcons
     Left = 35
     Top = 124
     object ActionOk: TAction
@@ -323,15 +307,8 @@ inherited OpenWithCmdList: TOpenWithCmdList
       ShortCut = 16411
       OnExecute = ActionCancelExecute
     end
-    object ActionSwitchView: TAction
-      Hint = 'Change View'
-      ImageIndex = 1
-      OnExecute = ActionSwitchViewExecute
-      OnUpdate = ActionSwitchViewUpdate
-    end
     object ActionShowConfig: TAction
       Hint = 'Show Settings...'
-      ImageIndex = 0
       OnExecute = ActionShowConfigExecute
     end
   end
@@ -340,31 +317,14 @@ inherited OpenWithCmdList: TOpenWithCmdList
     Top = 126
   end
   object SVGIconImageList1: TSVGIconVirtualImageList
-    ImageCollection = SVGIconDataModule.SVGIconImageCollection1
     Images = <
       item
+        CollectionIndex = 58
         CollectionName = 'tools'
         Name = 'tools'
-      end
-      item
-        CollectionName = 'eye'
-        Name = 'eye'
-      end
-      item
-        CollectionName = 'list-unordered'
-        Name = 'list-unordered'
-      end
-      item
-        CollectionName = 'view-list-icons'
-        Name = 'view-list-icons'
-      end
-      item
-        CollectionName = 'list-flat'
-        Name = 'list-flat'
       end>
-    Scaled = True
+    ImageCollection = SVGIconDataModule.SVGIconImageCollection1
     Left = 208
     Top = 184
   end
 end
-

@@ -361,10 +361,10 @@ begin
 	SetRgOutputOptionsPanel(_settings);
 
 	lblPaths.Images := SVGIconImageList1;
-	lblPaths.ImageIndexWarning := 16;
-	lblPaths.ImageIndexError := 17;
-	lblPaths.ImageIndexInfo := 18;
-	lblPaths.ImageIndexQuestion := 19;
+	lblPaths.ImageNameWarning := 'icon-warning';
+	lblPaths.ImageNameError := 'icon-error';
+	lblPaths.ImageNameInfo := 'icon-info';
+	lblPaths.ImageNameQuestion := 'icon-question';
 
 	// Disable theme font painting so Font.Color works on cmbSearchDir
 	cmbSearchDir.StyleElements := cmbSearchDir.StyleElements - [seFont];
@@ -423,18 +423,16 @@ end;
 procedure TRipGrepperSearchDialogForm.UpdateOkButton;
 begin
 	btnOk.Caption := 'Search';
-	btnOk.ImageIndex := 3;
-	btnOk.ImageName := 'magnify';
 	btnOk.Images := SVGIconImageList1;
+	btnOk.ImageName := 'magnify';
 	btnOk.Action := ActionSearch;
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCancelButton;
 begin
 	btnCancel.Caption := 'Cancel';
-	btnCancel.ImageIndex := 13;
-	btnCancel.ImageName := 'close';
 	btnCancel.Images := SVGIconImageList1;
+	btnCancel.ImageName := 'close';
 	btnCancel.Action := ActionCancel;
 end;
 

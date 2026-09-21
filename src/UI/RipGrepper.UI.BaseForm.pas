@@ -79,7 +79,6 @@ end;
 procedure TBaseForm.UpdateOkButton;
 begin
 	btnOk.Caption := 'OK';
-	btnOk.ImageIndex := 0;
 	btnOk.ImageName := 'ok';
 	btnOk.Images := SVGImageListBottomPanel;
 end;
@@ -87,7 +86,6 @@ end;
 procedure TBaseForm.UpdateCancelButton;
 begin
 	btnCancel.Caption := 'Cancel';
-	btnCancel.ImageIndex := 1;
 	btnCancel.ImageName := 'close';
 	btnCancel.Images := SVGImageListBottomPanel;
 end;

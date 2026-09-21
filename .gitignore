@@ -17,6 +17,7 @@ Release/
 __history/
 __recovery/
 __astcache/
+.vsdcache/
 *.dsk
 *.~dsk
 *.dsv
