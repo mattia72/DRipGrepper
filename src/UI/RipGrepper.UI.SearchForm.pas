@@ -423,18 +423,16 @@ end;
 procedure TRipGrepperSearchDialogForm.UpdateOkButton;
 begin
 	btnOk.Caption := 'Search';
-	btnOk.ImageIndex := 3;
-	btnOk.ImageName := 'magnify';
 	btnOk.Images := SVGIconImageList1;
+	btnOk.ImageName := 'magnify';
 	btnOk.Action := ActionSearch;
 end;
 
 procedure TRipGrepperSearchDialogForm.UpdateCancelButton;
 begin
 	btnCancel.Caption := 'Cancel';
-	btnCancel.ImageIndex := 13;
-	btnCancel.ImageName := 'close';
 	btnCancel.Images := SVGIconImageList1;
+	btnCancel.ImageName := 'close';
 	btnCancel.Action := ActionCancel;
 end;
 
