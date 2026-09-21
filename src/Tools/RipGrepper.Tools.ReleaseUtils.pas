@@ -84,12 +84,18 @@ type
 			class function CompareVersions(const _version1, _version2 : string) : Integer; static;
 			procedure DownloadReleaseInfos;
 			class function GetAppDirectory() : string; static;
+
 			class function GetAppNameAndVersion(const _exePath : string) : string; static;
+			class function GetAppNameAndVersionAndDate(const _exePath : string): String; static;
+			class function GetModuleNameAndVersion() : string; static;
+			class function GetModuleNameAndVersionAndDate() : string; static;
+			class function GetRunningModuleModifiedDate: String; static;
+
 			function GetCurrentNameWithVersion() : string;
+			function GetCurrentNameWithVersionAndDate() : string;
 			function GetCurrentName() : string;
 			class function GetFileVersion(const _fullPath : string) : string; static;
 			class function GetRunningModuleVersion() : string; static;
-			class function GetModuleNameAndVersion() : string; static;
 			class function GetRunningModulePath() : string; static;
 			function GetUpdateCheckStatus(var sStatusMsg : string) : EUpdateCheckStatus;
 			function IsCurrentTheLatest : Boolean;
@@ -97,6 +103,7 @@ type
 			procedure ShowVersionInfoMsgBox(const _bOnlyIfUpdateAvailable : Boolean = False);
 			function TryGetCurrentRelInfo(var _curInfo : IReleaseInfo) : Boolean;
 			property CurrentNameWithVersion : string read GetCurrentNameWithVersion;
+			property CurrentNameWithVersionAndDate : string read GetCurrentNameWithVersionAndDate;
 			property CurrentName : string read GetCurrentName;
 			property CurrentRelease : IReleaseInfo read GetCurrentRelease;
 			property CurrentVersion : string read GetCurrentVersion;
@@ -294,6 +301,16 @@ begin
 	Result := Format(FORMAT_NAME_VERSION_INFO, [name, APP_PLATFORM, sVersion]);
 end;
 
+class function TReleaseUtils.GetAppNameAndVersionAndDate(const _exePath : string): String;
+var
+	sVersion : string;
+	sModified : string;
+begin
+	sVersion := TReleaseUtils.GetAppNameAndVersion(_exePath);
+	sModified := TReleaseUtils.GetRunningModuleModifiedDate();
+	Result := sVersion + ' (' + sModified + ')';
+end;
+
 function TReleaseUtils.GetCurrentNameWithVersion() : string;
 begin
 	if FCurrentNameWithVersion.IsEmpty then begin
@@ -304,6 +321,15 @@ begin
 		{$ENDIF}
 	end;
 	Result := FCurrentNameWithVersion;
+end;
+
+function TReleaseUtils.GetCurrentNameWithVersionAndDate() : string;
+begin
+	{$IFDEF STANDALONE}
+	Result := TReleaseUtils.GetAppNameAndVersionAndDate(Application.ExeName);
+	{$ELSE}
+	Result := TReleaseUtils.GetModuleNameAndVersionAndDate();
+	{$ENDIF}
 end;
 
 function TReleaseUtils.GetCurrentName() : string;
@@ -375,6 +401,16 @@ var
 begin
 	modulePath := GetRunningModulePath();
 	Result := GetAppNameAndVersion(modulePath);
+end;
+
+class function TReleaseUtils.GetModuleNameAndVersionAndDate() : string;
+var
+	sVersion : string;
+	sModified : string;
+begin
+	sVersion := TReleaseUtils.GetModuleNameAndVersion();
+	sModified := TReleaseUtils.GetRunningModuleModifiedDate();
+	Result := sVersion + ' (' + sModified + ')';
 end;
 
 class function TReleaseUtils.GetModuleVersion(Instance : THandle; out iMajor, iMinor, iRelease, iBuild : Integer) : Boolean;
@@ -488,7 +524,7 @@ begin
 		sStatusMsg := Format('New version %s published at %s', [LatestVersion, DateTimeToStr(LatestRelease.PublishedAt)]);
 		Result := ucsUpdateAvailable;
 	end;
-	sStatusMsg := GetModuleNameAndVersion() + CRLF + sStatusMsg;
+	sStatusMsg := GetModuleNameAndVersionAndDate() + CRLF + sStatusMsg;
 end;
 
 function TReleaseUtils.IsCurrentTheLatest : Boolean;
@@ -687,6 +723,16 @@ begin
 
 	// Both have suffixes or both don't have suffixes
 	Result := CompareStr(suffix1, suffix2);
+end;
+
+class function TReleaseUtils.GetRunningModuleModifiedDate: String;
+var
+	dFileAge : TDateTime;
+	sFullPath : string;
+begin
+	sFullPath := TReleaseUtils.GetRunningModulePath();
+	System.SysUtils.FileAge(sFullPath, dFileAge);
+	Result := DateTimeToStr(dFileAge);
 end;
 
 end.

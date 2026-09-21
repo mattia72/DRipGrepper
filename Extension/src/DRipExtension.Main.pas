@@ -176,22 +176,20 @@ procedure TDRipExtension.InitPluginInfo;
 var
 	bmpHandle : HBITMAP;
 	sFullPath : string;
-	dFileAge : TDateTime;
-	aLicenseStatus : string;
+	sModified : string;
 	sExeVersion : string;
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TDRipExtension.InitPluginInfo');
 	sFullPath := TReleaseUtils.GetRunningModulePath();
-	System.SysUtils.FileAge(sFullPath, dFileAge);
-	aLicenseStatus := FormatDateTime('dd.mm.yy - h:nn', dFileAge);
+	sModified := TReleaseUtils.GetRunningModuleModifiedDate();
 	sExeVersion := TReleaseUtils.GetRunningModuleVersion();
 	bmpHandle := LoadBitmap(hInstance, 'splash_icon');
 	(SplashScreenServices as IOTASplashScreenServices).AddPluginBitmap(EXTENSION_NAME, bmpHandle, False, '', sExeVersion);
 
 	bmpHandle := LoadBitmap(hInstance, 'about_icon');
 	FiPluginIndexAbout := (BorlandIDEServices as IOTAAboutBoxServices).AddPluginInfo(EXTENSION_NAME, EXTENSION_NAME + CRLF + HOME_PAGE,
-		bmpHandle, False, aLicenseStatus, sExeVersion);
+		bmpHandle, False, 'Freeware', sExeVersion + ' ' + sModified);
 end;
 
 procedure TDRipExtension.RegisterKeyboardBinding;
