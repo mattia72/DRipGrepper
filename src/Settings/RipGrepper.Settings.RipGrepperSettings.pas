@@ -37,20 +37,16 @@ type
 			FFileMasksHistory : IArraySetting;
 
 			FRipGrepArguments : IShared<TRipGrepArguments>;
-			FSearchPathIsDir : Boolean;
 
-			FActualSearchPath : string;
 			FLastSearchText : string;
 			FLastReplaceText : string;
 			FReplaceTextsHistory : IArraySetting;
 
 			function GetIsEmpty : Boolean;
-			function GetSearchPathIsDir : Boolean;
 			procedure SetFileMasksHistory(const Value : IArraySetting);
 			procedure SetExpertOptionHistory(const Value : IArraySetting);
 			procedure SetSearchPathsHistory(const Value : IArraySetting);
 			procedure SetSearchTextsHistory(const Value : IArraySetting);
-			function GetActualSearchPath : string;
 			function GetIsReplaceMode : Boolean;
 			function GetSearchFormSettings : TSearchFormSettings;
 			procedure LoadFirstNecessarySettings;
@@ -81,7 +77,6 @@ type
 			property FileMasksHistory : IArraySetting read FFileMasksHistory write SetFileMasksHistory;
 			property IsEmpty : Boolean read GetIsEmpty;
 
-			property ActualSearchPath : string read GetActualSearchPath;
 			property SearchPathsHistory : IArraySetting read FSearchPathsHistory write SetSearchPathsHistory;
 			property ExpertOptionHistory : IArraySetting read FExpertOptionHistory write SetExpertOptionHistory;
 			property RipGrepParameters : TRipGrepParameterSettings read FRipGrepParameters write FRipGrepParameters;
@@ -92,7 +87,6 @@ type
 			property IsReplaceMode : Boolean read GetIsReplaceMode;
 			property LastReplaceText : string read FLastReplaceText write FLastReplaceText;
 			property NodeLookSettings : TNodeLookSettings read FNodeLookSettings write FNodeLookSettings;
-			property SearchPathIsDir : Boolean read GetSearchPathIsDir;
 			property SearchTextsHistory : IArraySetting read FSearchTextsHistory write SetSearchTextsHistory;
 			property ReplaceTextsHistory : IArraySetting read FReplaceTextsHistory write SetReplaceTextsHistory;
 	end;
@@ -224,18 +218,6 @@ begin
 	end;
 end;
 
-function TRipGrepperSettings.GetActualSearchPath : string;
-var
-	s : string;
-begin
-	s := SearchPathsHistory.Value.SafeItem[0];
-	if not SearchPathsHistory.Value.IsEmpty and (s <> FActualSearchPath) then begin
-		FActualSearchPath := s;
-		FSearchPathIsDir := TDirectory.Exists(FActualSearchPath);
-	end;
-	Result := FActualSearchPath;
-end;
-
 function TRipGrepperSettings.GetIsAlreadyRead : Boolean;
 begin
 	Result := inherited;
@@ -260,13 +242,6 @@ begin
 	// FSearchFormSettings.ReadFile;
 	// end;
 	Result := FSearchFormSettings;
-end;
-
-function TRipGrepperSettings.GetSearchPathIsDir : Boolean;
-begin
-	// FSearchPathIsDir is refreshed by GetActualSearchPath, so call it first
-	GetActualSearchPath();
-	Result := FSearchPathIsDir;
 end;
 
 procedure TRipGrepperSettings.Init;

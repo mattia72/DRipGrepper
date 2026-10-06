@@ -2045,8 +2045,9 @@ begin
 	// Returns the base dir for relative paths, or empty string if there is none
 	Result := '';
 	{$IFDEF STANDALONE}
-	if Settings.SearchPathIsDir then begin
-		Result := Settings.ActualSearchPath;
+	// Use the search paths of the displayed results, not the actual content of the search form
+	if Assigned(HistItemObject) then begin
+		Result := HistItemObject.RelativeBaseDir;
 	end;
 	{$ELSE}
 	var
@@ -2082,19 +2083,11 @@ function TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath(const _nodeData :
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath');
-	Result := '';
-	{$IFDEF STANDALONE}
-	Result := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(_nodeData.FilePath));
-	{$ELSE}
-	var
-	activeProject := GetActiveProject();
-	if activeProject.Trim.IsEmpty then begin
-		// No project opened in the IDE: fall back to the file's own directory
+	Result := getRelativePathBaseDir();
+	if Result.IsEmpty then begin
+		// No search dir / active project: fall back to the file's own directory
 		Result := ExtractFileDir(_nodeData.FilePath);
-	end else begin
-		Result := ExtractFileDir(activeProject);
 	end;
-	{$ENDIF}
 	dbgMsg.MsgFmt('OpenWith <DIR>=%s', [Result]);
 end;
 

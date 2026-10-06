@@ -102,6 +102,7 @@ type
 		function GetMatches() : TParsedObjectRowCollection;
 		function GetNoMatchFound() : Boolean;
 		function GetParserType() : TParserType;
+		function GetRelativeBaseDir() : string;
 		function GetResultsTruncated() : Boolean;
 		procedure SetMatches(const Value : TParsedObjectRowCollection);
 		function GetRipGrepArguments : IShared<TRipGrepArguments>;
@@ -139,6 +140,7 @@ type
 		property GuiSearchTextParams : IShared<TGuiSearchTextParams> read GetGuiSearchTextParams write SetGuiSearchTextParams;
 		property IsExpertMode: Boolean read GetIsExpertMode write SetIsExpertMode;
 		property NoMatchFound : Boolean read GetNoMatchFound;
+		property RelativeBaseDir : string read GetRelativeBaseDir;
 		property ResultsTruncated : Boolean read GetResultsTruncated write SetResultsTruncated;
 		property ParserType : TParserType read GetParserType write SetParserType;
 		property SearchFormSettings : TSearchFormSettings read GetSearchFormSettings write SetSearchFormSettings;

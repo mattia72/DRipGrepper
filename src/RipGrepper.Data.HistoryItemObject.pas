@@ -34,6 +34,8 @@ type
 			FHasResult : Boolean;
 			FMatches : TParsedObjectRowCollection;
 			FParserType : TParserType;
+			FRelativeBaseDir : string;
+			FRelativeBaseDirKey : string;
 			FResultsTruncated : Boolean;
 			FRipGrepResult : Integer;
 			FTotalMatchCount : integer;
@@ -59,6 +61,7 @@ type
 			procedure SetMatches(const Value : TParsedObjectRowCollection);
 			procedure SetRipGrepArguments(const Value : IShared<TRipGrepArguments>);
 			function GetParserType : TParserType;
+			function GetRelativeBaseDir() : string;
 			function GetResultsTruncated() : Boolean;
 			function GetSearchFormSettings : TSearchFormSettings;
 			function GetRipGrepResult : Integer;
@@ -107,6 +110,7 @@ type
 			property IsLoadedFromStream : Boolean read GetIsLoadedFromStream;
 			property IsReplaceMode : Boolean read GetIsReplaceMode;
 			property NoMatchFound : Boolean read GetNoMatchFound;
+			property RelativeBaseDir : string read GetRelativeBaseDir;
 			property ResultsTruncated : Boolean read GetResultsTruncated write SetResultsTruncated;
 			property RipGrepResult : Integer read GetRipGrepResult write SetRipGrepResult;
 			property ParserType : TParserType read GetParserType write SetParserType;
@@ -150,6 +154,7 @@ uses
 	RipGrepper.Helper.Types,
 	RipGrepper.Settings.RipGrepParameterSettings,
 	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Tools.FileUtils,
 	RipGrepper.Helper.UI,
 	RipGrepper.Helper.StreamReaderWriter;
 
@@ -277,6 +282,22 @@ begin
 	Result := FParserType;
 end;
 
+function THistoryItemObject.GetRelativeBaseDir() : string;
+begin
+	// Base dir for relative paths of the results: the common dir of the searched paths.
+	// RipGrepArguments can be changed from outside, so it is recalculated if the search paths changed.
+	var
+	searchPaths := RipGrepArguments.GetSearchPath();
+	var
+	key := string.Join(SEARCH_PATH_SEPARATOR, searchPaths);
+	if key <> FRelativeBaseDirKey then begin
+		FRelativeBaseDirKey := key;
+		FRelativeBaseDir := TFileUtils.GetCommonBaseDir(searchPaths);
+		TDebugUtils.DebugMessage('THistoryItemObject.GetRelativeBaseDir: ' + FRelativeBaseDir);
+	end;
+	Result := FRelativeBaseDir;
+end;
+
 function THistoryItemObject.GetReplaceText : string;
 begin
 	Result := GuiSearchTextParams.ReplaceText;
@@ -331,6 +352,8 @@ begin
 	FRipGrepArguments := Shared.Make<TRipGrepArguments>();
 	FStreamFormatVersion := STREAM_FORMAT_VERSION;
 	FParserType := ptEmpty;
+	FRelativeBaseDir := '';
+	FRelativeBaseDirKey := '';
 	ClearMatches;
 	FHasResult := False;
 	FIsLoadedFromStream := False;

@@ -51,6 +51,10 @@ type
 			class function ExpandFileNameRelBaseDir(const _Filename, _BaseDir : string) : string;
 			class function FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
 			class function FindFileInSubDirs(const _dir : string; const _file : string) : string;
+			/// <summary>
+			/// Returns the deepest directory containing all of the given paths (dirs or files, maybe quoted).
+			/// Returns empty string if there is no common directory (e.g. different drives). </summary>
+			class function GetCommonBaseDir(const _paths : TArray<string>) : string;
 			class function IsExeInPath(const _exeName : string) : Boolean;
 			class function GetVsCodeDir : string;
 			class function GetVsCodeCommandItem : TCommandItem;
@@ -132,6 +136,65 @@ begin
 		Result := _Filename;
 	end;
 	Result := TPath.GetFullPath(Result);
+end;
+
+class function TFileUtils.GetCommonBaseDir(const _paths : TArray<string>) : string;
+var
+	commonParts : TArray<string>;
+	isFirst : Boolean;
+	isUnc : Boolean;
+begin
+	Result := '';
+	commonParts := nil;
+	isFirst := True;
+	isUnc := False;
+	for var p : string in _paths do begin
+		var
+		path := p.Trim();
+		if (path.Length >= 2) and path.StartsWith('"') and path.EndsWith('"') then begin
+			path := path.Substring(1, path.Length - 2);
+		end;
+		if path.IsEmpty then begin
+			continue;
+		end;
+		path := ExpandFileName(path);
+		// A file (or a not existing path) is represented by its parent directory
+		if not TDirectory.Exists(path) then begin
+			path := ExtractFileDir(path);
+		end;
+		var
+		parts := ExcludeTrailingPathDelimiter(path).Split([PathDelim], TStringSplitOptions.ExcludeEmpty);
+		if isFirst then begin
+			commonParts := parts;
+			// The leading '\\' of network paths is lost by the split
+			isUnc := path.StartsWith(PathDelim + PathDelim);
+			isFirst := False;
+			continue;
+		end;
+		var
+		count := 0;
+		while (count < Min(Length(commonParts), Length(parts))) and SameText(commonParts[count], parts[count]) do begin
+			Inc(count);
+		end;
+		SetLength(commonParts, count);
+		if count = 0 then begin
+			// e.g. paths on different drives
+			Exit;
+		end;
+	end;
+
+	if isUnc then begin
+		// A network path needs at least \\server\share
+		if Length(commonParts) >= 2 then begin
+			Result := PathDelim + PathDelim + string.Join(PathDelim, commonParts);
+		end;
+	end else if Length(commonParts) > 0 then begin
+		Result := string.Join(PathDelim, commonParts);
+		// Keep drive roots valid, 'C:' would mean the current dir on drive C
+		if Length(commonParts) = 1 then begin
+			Result := IncludeTrailingPathDelimiter(Result);
+		end;
+	end;
 end;
 
 class function TFileUtils.FindExecutable(sFileName : string; out sOutpuPath : string) : Boolean;
