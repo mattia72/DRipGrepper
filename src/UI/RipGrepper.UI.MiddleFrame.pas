@@ -839,7 +839,11 @@ begin
 		end else begin
 			var
 			activeProject := GetActiveProject();
-			actPath := TPath.GetDirectoryName(activeProject);
+			// No project opened in the IDE: TPath.GetDirectoryName would raise on empty string
+			if activeProject.Trim.IsEmpty then begin
+				Exit;
+			end;
+			actPath := ExtractFileDir(activeProject);
 		end;
 		dbgMsg.MsgFmt('search path: %s', [actPath], tftVerbose);
 		Result := ExtractRelativePath(actPath + '\', _sFullPath);
@@ -2075,7 +2079,12 @@ begin
 	{$ELSE}
 	var
 	activeProject := GetActiveProject();
-	Result := TPath.GetDirectoryName(activeProject);
+	if activeProject.Trim.IsEmpty then begin
+		// No project opened in the IDE: fall back to the file's own directory
+		Result := ExtractFileDir(_nodeData.FilePath);
+	end else begin
+		Result := ExtractFileDir(activeProject);
+	end;
 	{$ENDIF}
 	dbgMsg.MsgFmt('OpenWith <DIR>=%s', [Result]);
 end;
