@@ -367,6 +367,7 @@ object RipGrepperTopFrame: TRipGrepperTopFrame
       ImageIndex = 6
       ImageName = 'full-path'
       OnExecute = ActionShowRelativePathExecute
+      OnUpdate = ActionShowRelativePathOnUpdate
     end
     object ActionShowFileIcons: TAction
       Category = 'View'

@@ -264,6 +264,8 @@ end;
 
 function TRipGrepperSettings.GetSearchPathIsDir : Boolean;
 begin
+	// FSearchPathIsDir is refreshed by GetActualSearchPath, so call it first
+	GetActualSearchPath();
 	Result := FSearchPathIsDir;
 end;
 
