@@ -14,6 +14,7 @@ const
 
 	COMPILER_VERSION_DELPHI_11 = 35; // Delphi 11 Alexandria
 	COMPILER_VERSION_DELPHI_12 = 36; // Delphi 12.1 Athens
+	COMPILER_VERSION_DELPHI_13 = 37; // Delphi 13 Florence
 	// COMPILER_VERSION_DELPHI_12_1 = 36; // Delphi 12.1 Athens
 	// COMPILER_VERSION_DELPHI_12_3 = 36; // Delphi 12.3 Athens Update
 

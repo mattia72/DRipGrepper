@@ -21,7 +21,15 @@ const
 	CompilerDefinedProductRegistryKey = CompanyRegPrefix + 'BDS\23.0';
 	ClassBrowserStorageFolder = 'Classes.RADStudio12.0';
 	{$ENDIF VER360}
-	{$IF CompilerVersion > 36} // new Delphi version
+	{$IFDEF VER370} // Delphi/RAD Studio 13 Florence
+	GExpertsDll = 'GExpertsRS130.dll';
+	TTabDockHostFormClassContainer = 'designide370.bpl';
+	MajorVersionNumberChar = '37';
+	IDEEnglishName = 'RAD Studio 13';
+	CompilerDefinedProductRegistryKey = CompanyRegPrefix + 'BDS\37.0';
+	ClassBrowserStorageFolder = 'Classes.RADStudio13.0';
+	{$ENDIF VER370}
+	{$IF CompilerVersion > 37} // new Delphi version
 	{ } 'Add the information for the new Delphi version above and increase the CompilerVersion in this conditional'
 {$IFEND}
 // ---------------

@@ -1,0 +1,55 @@
+package DRipGrepperComponents;
+
+{$R *.res}
+{$IFDEF IMPLICITBUILDING This IFDEF should not be used by users}
+{$ALIGN 8}
+{$ASSERTIONS ON}
+{$BOOLEVAL OFF}
+{$DEBUGINFO OFF}
+{$EXTENDEDSYNTAX ON}
+{$IMPORTEDDATA ON}
+{$IOCHECKS ON}
+{$LOCALSYMBOLS OFF}
+{$LONGSTRINGS ON}
+{$OPENSTRINGS ON}
+{$OPTIMIZATION ON}
+{$OVERFLOWCHECKS OFF}
+{$RANGECHECKS OFF}
+{$REFERENCEINFO OFF}
+{$SAFEDIVIDE OFF}
+{$STACKFRAMES OFF}
+{$TYPEDADDRESS OFF}
+{$VARSTRINGCHECKS ON}
+{$WRITEABLECONST OFF}
+{$MINENUMSIZE 1}
+{$IMAGEBASE $400000}
+{$DEFINE RELEASE}
+{$ENDIF IMPLICITBUILDING}
+{$IMPLICITBUILD ON}
+
+requires
+  rtl,
+  Spring.Base,
+  designide,
+  vcl,
+  vclactnband,
+  vclx,
+  xmlrtl,
+  VclSmp,
+  SVGIconImageList,
+  SVGImage32Package;
+
+contains
+  RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas',
+  RipGrepper.UI.Components.NotifyingControls in '..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas',
+  RipGrepper.UI.Components.CustomOptionsBase in '..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas',
+  RipGrepper.UI.Components.OptionControls in '..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas',
+  RipGrepper.UI.Components.Constants in '..\..\UI\Components\RipGrepper.UI.Components.Constants.pas',
+  RipGrepper.UI.Components.LabeledComboBox in '..\..\UI\Components\RipGrepper.UI.Components.LabeledComboBox.pas',
+  RipGrepper.UI.Components.CheckBoxComboBox in '..\..\UI\Components\RipGrepper.UI.Components.CheckBoxComboBox.pas',
+  RipGrepper.UI.Components.CheckBoxSpinEdit in '..\..\UI\Components\RipGrepper.UI.Components.CheckBoxSpinEdit.pas',
+  RipGrepper.UI.Components.BoundCheckBox in '..\..\UI\Components\RipGrepper.UI.Components.BoundCheckBox.pas',
+  RipGrepper.UI.Components.IconLabel in '..\..\UI\Components\RipGrepper.UI.Components.IconLabel.pas',
+  RipGrepper.Helper.UI.DarkMode in '..\..\RipGrepper.Helper.UI.DarkMode.pas';
+
+end.
