@@ -1,0 +1,150 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{A8D959CD-7307-44E5-ACB2-FB3F6BF1CFBC}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="src\Project\Delphi13\DRipGrepperComponents.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="src\Project\Delphi13\DRipGrepper.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="UnitTest\DRipGrepperUnittest.D13.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="DRipGrepperComponents">
+        <MSBuild Projects="src\Project\Delphi13\DRipGrepperComponents.dproj"/>
+    </Target>
+    <Target Name="DRipGrepperComponents:Clean">
+        <MSBuild Projects="src\Project\Delphi13\DRipGrepperComponents.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipGrepperComponents:Make">
+        <MSBuild Projects="src\Project\Delphi13\DRipGrepperComponents.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DRipGrepper">
+        <MSBuild Projects="src\Project\Delphi13\DRipGrepper.dproj"/>
+    </Target>
+    <Target Name="DRipGrepper:Clean">
+        <MSBuild Projects="src\Project\Delphi13\DRipGrepper.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipGrepper:Make">
+        <MSBuild Projects="src\Project\Delphi13\DRipGrepper.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DripExtensionD13">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj"/>
+    </Target>
+    <Target Name="DripExtensionD13:Clean">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DripExtensionD13:Make">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DRipGrepperUnittest_D13">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D13.dproj"/>
+    </Target>
+    <Target Name="DRipGrepperUnittest_D13:Clean">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D13.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipGrepperUnittest_D13:Make">
+        <MSBuild Projects="UnitTest\DRipGrepperUnittest.D13.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="DRipGrepperComponents;DRipGrepper;DripExtensionD13;DRipGrepperUnittest_D13"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="DRipGrepperComponents:Clean;DRipGrepper:Clean;DripExtensionD13:Clean;DRipGrepperUnittest_D13:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="DRipGrepperComponents:Make;DRipGrepper:Make;DripExtensionD13:Make;DRipGrepperUnittest_D13:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+    <ItemGroup Condition="'$(BuildGroup)'=='Debug'">
+        <BuildGroupProject Include="src\Project\Delphi13\DRipGrepper.dproj">
+            <ProjectGuid>{854A4908-12C6-46C3-8233-FFD3132ED063}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj">
+            <ProjectGuid>{B06888B1-609B-48DC-9CCD-15E07788EC17}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="UnitTest\DRipGrepperUnittest.D13.dproj">
+            <ProjectGuid>{6DFA0603-6245-41B1-9790-731A45DC3BEC}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="src\Project\Delphi13\DRipGrepperComponents.dproj">
+            <ProjectGuid>{2414872F-604F-4666-ABA9-400FFBFDC586}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='Release'">
+        <BuildGroupProject Include="src\Project\Delphi13\DRipGrepper.dproj">
+            <ProjectGuid>{854A4908-12C6-46C3-8233-FFD3132ED063}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj">
+            <ProjectGuid>{B06888B1-609B-48DC-9CCD-15E07788EC17}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="UnitTest\DRipGrepperUnittest.D13.dproj">
+            <ProjectGuid>{6DFA0603-6245-41B1-9790-731A45DC3BEC}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="src\Project\Delphi13\DRipGrepperComponents.dproj">
+            <ProjectGuid>{2414872F-604F-4666-ABA9-400FFBFDC586}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='Release x64'">
+        <BuildGroupProject Include="src\Project\Delphi13\DRipGrepper.dproj">
+            <ProjectGuid>{854A4908-12C6-46C3-8233-FFD3132ED063}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj">
+            <ProjectGuid>{B06888B1-609B-48DC-9CCD-15E07788EC17}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="UnitTest\DRipGrepperUnittest.D13.dproj">
+            <ProjectGuid>{6DFA0603-6245-41B1-9790-731A45DC3BEC}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="src\Project\Delphi13\DRipGrepperComponents.dproj">
+            <ProjectGuid>{2414872F-604F-4666-ABA9-400FFBFDC586}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+</Project>

@@ -16,7 +16,7 @@ A powerful [ripgrep](https://github.com/BurntSushi/ripgrep) GUI written in Delph
 - "Open with..." integration ([wiki examples](https://github.com/mattia72/DRipGrepper/wiki/Open-With...-help-and-samples))
 
 **Delphi Extension**
-- Delphi 11, 12 support
+- Delphi 11, 12, 13 support
 - Tools menu integration (Shift+Alt+R)
 - Direct file opening at search position
 - Add files to `uses` clauses
@@ -38,7 +38,7 @@ scoop install dripgrepper
 
 #### Delphi IDE Integration
 1. Run `DripGrepper.exe` → Config → Extension tab → Install...
-2. Select `DripExtensions.dll` (if not auto-detected)
+2. Select the DLL for your Delphi version (`DRipExtensions.D11.dll`, `DRipExtensions.D12.dll`, or `DripExtensionD13.dll`) and the matching Delphi version
 3. Restart Delphi
 
 ## Update
