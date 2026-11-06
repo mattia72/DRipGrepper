@@ -256,7 +256,11 @@ var
 	dv : IDelphiVersion;
 begin
 	dv := GetSelectedDelphiVersion;
-	Result := EXTENSION_NAME + '.D' + (dv as TDelphiVersion).Name + '.dll';
+	if dv.BDS = '37.0' then begin
+		Result := 'DripExtensionD13.dll';
+	end else begin
+		Result := EXTENSION_NAME + '.D' + (dv as TDelphiVersion).Name + '.dll';
+	end;
 end;
 
 function TExtensionSettingsForm.IsPathInstalled() : Boolean;
