@@ -170,6 +170,7 @@ type
 		protected
 			function GetPersister() : IFilePersister<T>;
 			procedure SetPersister(const Value : IFilePersister<T>);
+			function ValuesEqual(const Left, Right : T) : Boolean; virtual;
 
 		public
 			constructor Create(const _name : string; const _value : T; { } _state : TSettingState = ssInitialized;
@@ -234,6 +235,9 @@ type
 			procedure SetItem(Index : Integer; const Value : string);
 			procedure SetSafeItem(index : Integer; const Value : string);
 
+		protected
+			function ValuesEqual(const Left, Right : TArrayEx<string>) : Boolean; override;
+
 		public
 			procedure Add(const AItem : string);
 			function AddIfNotContains(const AItem : string) : Integer;
@@ -275,7 +279,7 @@ end;
 procedure TSettingVariant<T>.Clear();
 begin
 	// inherited Clear sets ssModified
-	if FValue <> default(T) then begin
+	if not ValuesEqual(FValue, Default(T)) then begin
 		FValue := default (T);
 		State := ssModified;
 	end;
@@ -317,7 +321,7 @@ end;
 
 procedure TSettingVariant<T>.SetValue(const Value : T);
 begin
-	if FValue <> Value then begin
+	if not ValuesEqual(FValue, Value) then begin
 		FValue := Value;
 		State := ssModified;
 		if ( ssbStoreAfterChangeImmediately in FSaveBehaviour  )then begin
@@ -325,6 +329,11 @@ begin
 		end;
 
 	end;
+end;
+
+function TSettingVariant<T>.ValuesEqual(const Left, Right : T) : Boolean;
+begin
+	Result := TEqualityComparer<T>.Default.Equals(Left, Right);
 end;
 
 function TSettingVariant<T>.GetValue() : T;
@@ -640,6 +649,11 @@ begin
 	Result := Result and (Value = _other.Value);
 end;
 
+function TArraySetting.ValuesEqual(const Left, Right : TArrayEx<string>) : Boolean;
+begin
+	Result := Left.Compare(Right);
+end;
+
 function TArraySetting.GetCount() : Integer;
 begin
 	Result := self.Value.Count;
@@ -751,3 +765,4 @@ begin
 end;
 
 end.
+
