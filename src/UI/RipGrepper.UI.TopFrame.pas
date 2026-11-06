@@ -148,6 +148,7 @@ type
 		procedure UpdateDateColumnsUI;
 		procedure ActionShowRelativePathExecute(Sender : TObject);
 		procedure ActionShowRelativePathUpdate;
+		procedure ActionShowRelativePathOnUpdate(Sender : TObject);
 		procedure ActionShowSearchFormExecute(Sender : TObject);
 		procedure edtFilterChange(Sender : TObject);
 		procedure edtFilterKeyDown(Sender : TObject; var Key : Word; Shift : TShiftState);
@@ -727,6 +728,16 @@ begin
 	// tbShowRelativePath.Down := Settings.NodeLookSettings.ShowRelativePath;
 	ActionShowRelativePath.ImageName := 
 		{ } Ifthen(Settings.NodeLookSettings.ShowRelativePath, 'full-path', 'relative-path');
+end;
+
+procedure TRipGrepperTopFrame.ActionShowRelativePathOnUpdate(Sender : TObject);
+begin
+	// Relative path makes no sense without a base dir (active project / search dir)
+	ActionShowRelativePath.Enabled := MainFrame.CanShowRelativePath();
+	// Full paths are shown when disabled, so show the icon of that state
+	ActionShowRelativePath.ImageName :=
+		{ } Ifthen(ActionShowRelativePath.Enabled and Settings.NodeLookSettings.ShowRelativePath,
+		{ } 'full-path', 'relative-path');
 end;
 
 procedure TRipGrepperTopFrame.ActionShowSearchFormExecute(Sender : TObject);

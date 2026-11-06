@@ -182,8 +182,9 @@ type
 			function GetIsRgReplaceMode : Boolean;
 			function AddParallelParser(const _iLineNr : Integer; const _sLine : string; const _bIsLast : Boolean) : TParallelParser;
 			procedure DeleteResultNode(const node : PVirtualNode);
-			function GetActiveProject() : string;
+			function getRelativePathBaseDir() : string;
 			{$IF IS_EXTENSION}
+			function GetActiveProject() : string;
 			function IsInProject(const _filePath : string) : Boolean;
 			{$ENDIF}
 			function GetIsInitialized() : Boolean;
@@ -225,6 +226,7 @@ type
 			constructor Create(AOwner : TComponent); override;
 			destructor Destroy; override;
 			function AreAllResultsChecked : Boolean;
+			function CanShowRelativePath() : Boolean;
 			function GetCheckAllResultsState(out _caption, _hint : string) : Boolean;
 			procedure AfterHistObjChange;
 			procedure AfterSearch;
@@ -827,22 +829,9 @@ begin
 
 	Result := _sFullPath;
 	if Settings.NodeLookSettings.ShowRelativePath then begin
-		{$IFDEF STANDALONE}
-		var
-		bStandalone := True;
-		{$ELSE}
-		var
-		bStandalone := False;
-		{$ENDIF}
-		if bStandalone then begin
-			actPath := Settings.ActualSearchPath;
-			if (actPath.IsEmpty or (not Settings.SearchPathIsDir)) then begin
-				Exit;
-			end;
-		end else begin
-			var
-			activeProject := GetActiveProject();
-			actPath := TPath.GetDirectoryName(activeProject);
+		actPath := getRelativePathBaseDir();
+		if actPath.IsEmpty then begin
+			Exit;
 		end;
 		dbgMsg.MsgFmt('search path: %s', [actPath], tftVerbose);
 		Result := ExtractRelativePath(actPath + '\', _sFullPath);
@@ -2043,6 +2032,7 @@ begin
 	// dbgMsg.MsgFmt('FParsingThreads.Count %d.', [FParsingThreads.Count])
 end;
 
+{$IF IS_EXTENSION}
 function TRipGrepperMiddleFrame.GetActiveProject() : string;
 begin
 	var
@@ -2051,9 +2041,33 @@ begin
 	extSettings := Settings.SearchFormSettings.ExtensionSettings;
 	Result := extSettings.CurrentIDEContext.ActiveProject;
 end;
+{$ENDIF}
+
+function TRipGrepperMiddleFrame.getRelativePathBaseDir() : string;
+begin
+	// Returns the base dir for relative paths, or empty string if there is none
+	Result := '';
+	{$IFDEF STANDALONE}
+	// Use the search paths of the displayed results, not the actual content of the search form
+	if Assigned(HistItemObject) then begin
+		Result := HistItemObject.RelativeBaseDir;
+	end;
+	{$ELSE}
+	var
+	activeProject := GetActiveProject();
+	// No project opened in the IDE: TPath.GetDirectoryName would raise on empty string
+	if not activeProject.Trim.IsEmpty then begin
+		Result := ExtractFileDir(activeProject);
+	end;
+	{$ENDIF}
+end;
+
+function TRipGrepperMiddleFrame.CanShowRelativePath() : Boolean;
+begin
+	Result := not getRelativePathBaseDir().IsEmpty;
+end;
 
 {$IF IS_EXTENSION}
-
 function TRipGrepperMiddleFrame.IsInProject(const _filePath : string) : Boolean;
 var
 	ideContext : TDelphiIDEContext;
@@ -2072,14 +2086,11 @@ function TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath(const _nodeData :
 begin
 	var
 	dbgMsg := TDebugMsgBeginEnd.New('TRipGrepperMiddleFrame.GetOpenWithRelativeBaseDirPath');
-	Result := '';
-	{$IFDEF STANDALONE}
-	Result := IfThen(Settings.SearchPathIsDir, Settings.ActualSearchPath, ExtractFileDir(_nodeData.FilePath));
-	{$ELSE}
-	var
-	activeProject := GetActiveProject();
-	Result := TPath.GetDirectoryName(activeProject);
-	{$ENDIF}
+	Result := getRelativePathBaseDir();
+	if Result.IsEmpty then begin
+		// No search dir / active project: fall back to the file's own directory
+		Result := ExtractFileDir(_nodeData.FilePath);
+	end;
 	dbgMsg.MsgFmt('OpenWith <DIR>=%s', [Result]);
 end;
 

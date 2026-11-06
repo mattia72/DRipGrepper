@@ -48,6 +48,8 @@ type
 			function CreateSampleHistoryItemWithReplaceAndMatches() : IHistoryItemObject;
 			procedure AddUniqueSearchText(const _ripGrepArgs : IShared<TRipGrepArguments>; const _searchText : string);
 			function CreateParsedRow(_porc : IParsedObjectRowCollection) : IParsedObjectRow;
+			function createTempDirTree() : string;
+			function createHistItemWithSearchPaths(const _paths : TArray<string>) : IHistoryItemObject;
 
 		public
 			constructor Create();
@@ -166,6 +168,22 @@ type
 			procedure TestStreamVersion_V1LegacyStreamDefaultsResultsTruncatedToFalse;
 			[Test]
 			procedure TestStreamVersion_V2RoundtripPreservesAllFields;
+
+			// RelativeBaseDir tests
+			[Test]
+			procedure RelativeBaseDirShouldBeEmptyWithoutSearchPath;
+			[Test]
+			procedure RelativeBaseDirShouldBeTheSearchedDir;
+			[Test]
+			procedure RelativeBaseDirShouldBeTheDirOfTheSearchedFile;
+			[Test]
+			procedure RelativeBaseDirShouldBeTheCommonDirOfMultiplePaths;
+			[Test]
+			procedure RelativeBaseDirShouldBeEmptyForDifferentDrives;
+			[Test]
+			procedure RelativeBaseDirShouldFollowSearchPathChange;
+			[Test]
+			procedure RelativeBaseDirShouldBeRestoredFromStream;
 	end;
 
 implementation
@@ -178,6 +196,7 @@ uses
 	RipGrepper.Settings.SettingsDictionary,
 	ArrayEx,
 	RipGrepper.Helper.StreamReaderWriter,
+	System.IOUtils,
 
 	RipGrepper.Helper.Types;
 
@@ -2103,6 +2122,131 @@ begin
 	Assert.AreEqual(originalItem.ShouldSaveResult, loadedItem.ShouldSaveResult, 'ShouldSaveResult should match');
 	Assert.AreEqual(originalItem.RipGrepArguments.Count, loadedItem.RipGrepArguments.Count, 'RipGrepArguments count should match');
 	Assert.AreEqual(originalItem.Matches.Items.Count, loadedItem.Matches.Items.Count, 'Matches count should match');
+end;
+
+function THistoryItemObjectTest.createTempDirTree() : string;
+begin
+	{ Creates:
+	  <tmp>\Root\Sub1\file.txt
+	  <tmp>\Root\Sub 2 }
+	Result := TPath.Combine(TPath.GetTempPath(), 'DRipRelBaseDirTest_' + TGUID.NewGuid.ToString);
+	TDirectory.CreateDirectory(TPath.Combine(Result, 'Root\Sub1'));
+	TDirectory.CreateDirectory(TPath.Combine(Result, 'Root\Sub 2'));
+	TFile.WriteAllText(TPath.Combine(Result, 'Root\Sub1\file.txt'), 'test');
+end;
+
+function THistoryItemObjectTest.createHistItemWithSearchPaths(const _paths : TArray<string>) : IHistoryItemObject;
+begin
+	Result := THistoryItemObject.Create();
+	// Empty search text can't be saved to stream
+	Result.GuiSearchTextParams.SearchTextWithOptions.SearchTextOfUser := 'search text';
+	Result.RipGrepArguments.AddPair(RG_ARG_OPTIONS, '--vimgrep');
+	AddUniqueSearchText(Result.RipGrepArguments, 'search text');
+	for var path in _paths do begin
+		Result.RipGrepArguments.AddPair(RG_ARG_SEARCH_PATH, path);
+	end;
+end;
+
+procedure THistoryItemObjectTest.RelativeBaseDirShouldBeEmptyWithoutSearchPath;
+begin
+	var
+	hio := createHistItemWithSearchPaths([]);
+	Assert.AreEqual('', hio.RelativeBaseDir, 'RelativeBaseDir should be empty without search path');
+end;
+
+procedure THistoryItemObjectTest.RelativeBaseDirShouldBeTheSearchedDir;
+begin
+	var
+	tmpDir := createTempDirTree();
+	try
+		var
+		dir := TPath.Combine(tmpDir, 'Root\Sub1');
+		var
+		hio := createHistItemWithSearchPaths([dir]);
+		Assert.AreEqual(dir, hio.RelativeBaseDir, 'RelativeBaseDir should be the searched dir');
+
+		hio := createHistItemWithSearchPaths([IncludeTrailingPathDelimiter(dir)]);
+		Assert.AreEqual(dir, hio.RelativeBaseDir, 'RelativeBaseDir should not have trailing path delimiter');
+	finally
+		TDirectory.Delete(tmpDir, True);
+	end;
+end;
+
+procedure THistoryItemObjectTest.RelativeBaseDirShouldBeTheDirOfTheSearchedFile;
+begin
+	var
+	tmpDir := createTempDirTree();
+	try
+		var
+		hio := createHistItemWithSearchPaths([TPath.Combine(tmpDir, 'Root\Sub1\file.txt')]);
+		Assert.AreEqual(TPath.Combine(tmpDir, 'Root\Sub1'), hio.RelativeBaseDir, 'RelativeBaseDir should be the dir of the file');
+	finally
+		TDirectory.Delete(tmpDir, True);
+	end;
+end;
+
+procedure THistoryItemObjectTest.RelativeBaseDirShouldBeTheCommonDirOfMultiplePaths;
+begin
+	var
+	tmpDir := createTempDirTree();
+	try
+		// Paths with spaces are quoted in the rg arguments
+		var
+		hio := createHistItemWithSearchPaths([
+			{ } TPath.Combine(tmpDir, 'Root\Sub1\file.txt'),
+			{ } '"' + TPath.Combine(tmpDir, 'Root\Sub 2') + '"']);
+		Assert.AreEqual(TPath.Combine(tmpDir, 'Root'), hio.RelativeBaseDir, 'RelativeBaseDir should be the common dir');
+	finally
+		TDirectory.Delete(tmpDir, True);
+	end;
+end;
+
+procedure THistoryItemObjectTest.RelativeBaseDirShouldBeEmptyForDifferentDrives;
+begin
+	var
+	hio := createHistItemWithSearchPaths(['C:\NotExistingDir\a', 'D:\NotExistingDir\b']);
+	Assert.AreEqual('', hio.RelativeBaseDir, 'RelativeBaseDir should be empty for paths on different drives');
+end;
+
+procedure THistoryItemObjectTest.RelativeBaseDirShouldFollowSearchPathChange;
+begin
+	var
+	tmpDir := createTempDirTree();
+	try
+		var
+		hio := createHistItemWithSearchPaths([TPath.Combine(tmpDir, 'Root\Sub1')]);
+		Assert.AreEqual(TPath.Combine(tmpDir, 'Root\Sub1'), hio.RelativeBaseDir);
+
+		// e.g. search form changes the arguments directly
+		hio.RipGrepArguments.Clear;
+		hio.RipGrepArguments.AddPair(RG_ARG_SEARCH_PATH, TPath.Combine(tmpDir, 'Root\Sub 2'));
+		Assert.AreEqual(TPath.Combine(tmpDir, 'Root\Sub 2'), hio.RelativeBaseDir, 'RelativeBaseDir should follow search path change');
+	finally
+		TDirectory.Delete(tmpDir, True);
+	end;
+end;
+
+procedure THistoryItemObjectTest.RelativeBaseDirShouldBeRestoredFromStream;
+begin
+	var
+	tmpDir := createTempDirTree();
+	try
+		var
+		dir := TPath.Combine(tmpDir, 'Root\Sub1');
+		var
+		originalItem := createHistItemWithSearchPaths([dir]);
+		var
+		stream := Shared.Make<TMemoryStream>();
+		originalItem.SaveToStream(stream());
+		stream.Position := 0;
+
+		var
+		loadedItem : IHistoryItemObject := THistoryItemObject.Create();
+		loadedItem.LoadFromStream(stream());
+		Assert.AreEqual(dir, loadedItem.RelativeBaseDir, 'RelativeBaseDir should be restored from stream');
+	finally
+		TDirectory.Delete(tmpDir, True);
+	end;
 end;
 
 initialization
