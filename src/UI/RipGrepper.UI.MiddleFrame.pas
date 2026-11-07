@@ -34,8 +34,8 @@ uses
 	RipGrepper.Common.SimpleTypes,
 	System.Threading,
 	VirtualTrees, // GetIt TurboPack VirtualTree
-	{$IF CompilerVersion >= 37}
-	VirtualTrees.BaseTree, // TVTHintKind in the D13 Virtual Treeview package
+	{$IF CompilerVersion >= 36}
+	VirtualTrees.BaseTree, // TVTHintKind in the D12/D13 Virtual Treeview packages
 	{$ENDIF}
 	RipGrepper.Helper.UI,
 	RipGrepper.Parsers.ParallelParser,
