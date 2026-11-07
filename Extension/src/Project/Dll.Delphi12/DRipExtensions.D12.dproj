@@ -58,9 +58,9 @@
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <DCC_CBuilderOutput>All</DCC_CBuilderOutput>
         <SanitizedProjectName>DRipExtensions_D12</SanitizedProjectName>
-        <DCC_UnitSearchPath>..\..\..\src;..\..\..\..\external;..\..\..\..\src\OpenWith;..\..\..\..\external\GExpert;..\..\..\..\external\dzlib;..\..\..\..\external\RegExpr;..\..\..\..\external\mwParser;..\..\..\..\external\UniSynEdit;..\..\..\..\..\spring4d\Library\Delphi12\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\..\src;..\..\..\..\external;..\..\..\..\src\OpenWith;..\..\..\..\external\dzlib;..\..\..\..\external\RegExpr;..\..\..\..\external\UniSynEdit;..\..\..\..\..\spring4d\Library\Delphi12\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <DCC_Define>NO_TRANSLATION;NO_TRANSLATION_HINT;NO_OPTIMIZE_DZ_GRAPHIC_UTILS_HINT;UnicodeRE;EnableIdeDockingSupport;$(DCC_Define)</DCC_Define>
-        <DCC_UnitAlias>GX_IdeDockStandAlone=GX_IdeDock;SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
+        <DCC_UnitAlias>SynRegExpr=RegExprReplaceUnit;$(DCC_UnitAlias)</DCC_UnitAlias>
         <VerInfo_Locale>1031</VerInfo_Locale>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=4.16.0.360;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
         <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
@@ -74,8 +74,8 @@
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_UsePackage>rtl;vcl;designide;$(DCC_UsePackage)</DCC_UsePackage>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.338;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>338</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.458;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>458</VerInfo_Build>
         <VerInfo_MinorVer>16</VerInfo_MinorVer>
         <UsePackages>true</UsePackages>
         <Manifest_File>(None)</Manifest_File>
@@ -103,8 +103,8 @@
         <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\23.0\bin\bds.exe</Debugger_HostApplication>
         <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.338;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>338</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.458;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>458</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <Manifest_File>..\Delphi12\(None)</Manifest_File>
         <VerInfo_MinorVer>16</VerInfo_MinorVer>
@@ -121,8 +121,8 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_MajorVer>4</VerInfo_MajorVer>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.386;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-        <VerInfo_Build>386</VerInfo_Build>
+        <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.464;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+        <VerInfo_Build>464</VerInfo_Build>
         <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
         <DCC_Description>RipGrep Search within Delphi</DCC_Description>
         <VerInfo_MinorVer>16</VerInfo_MinorVer>
@@ -205,12 +205,15 @@
             <DesignClass>TFrame</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SVGIconDataModule.pas">
+            <Form>SVGIconDataModule</Form>
             <FormType>dfm</FormType>
+            <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.Constants.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.GuiSearchParams.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.Interfaces.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.pas"/>
+        <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.PascalUses.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.NodeData.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.ParsedObject.pas"/>
         <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.SearchParams.pas"/>

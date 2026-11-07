@@ -6,7 +6,6 @@ const
 	CompanyRegPrefix = 'Embarcadero\';
 
 	{$IFDEF VER350} // Delphi/RAD Studio 11 Alexandria
-	GExpertsDll = 'GExpertsRS110.dll';
 	TTabDockHostFormClassContainer = 'designide280.bpl';
 	MajorVersionNumberChar = '28';
 	IDEEnglishName = 'RAD Studio 11';
@@ -14,7 +13,6 @@ const
 	ClassBrowserStorageFolder = 'Classes.RADStudio11.0';
 	{$ENDIF VER350}
 	{$IFDEF VER360} // Delphi/RAD Studio 12 "Athens"
-	GExpertsDll = 'GExpertsRS120.dll';
 	TTabDockHostFormClassContainer = 'designide290.bpl';
 	MajorVersionNumberChar = '29';
 	IDEEnglishName = 'RAD Studio 12';
@@ -22,7 +20,6 @@ const
 	ClassBrowserStorageFolder = 'Classes.RADStudio12.0';
 	{$ENDIF VER360}
 	{$IFDEF VER370} // Delphi/RAD Studio 13 Florence
-	GExpertsDll = 'GExpertsRS130.dll';
 	TTabDockHostFormClassContainer = 'designide370.bpl';
 	MajorVersionNumberChar = '37';
 	IDEEnglishName = 'RAD Studio 13';

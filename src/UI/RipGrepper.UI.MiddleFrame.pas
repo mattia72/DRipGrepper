@@ -294,7 +294,7 @@ uses
 	RipGrepper.Parsers.Factory,
 	RipGrepper.UI.TopFrame,
 	{$IFNDEF STANDALONE} RipGrepper.Common.IOTAUtils,
-	GX_UsesManager,
+	RipGrepper.Common.PascalUses,
 	RipGrepper.Settings.ExtensionSettings,
 	{$ENDIF}
 	System.Generics.Defaults,
@@ -571,26 +571,23 @@ end;
 procedure TRipGrepperMiddleFrame.AddAsUsing(_bToImpl : Boolean);
 begin
 	{$IFNDEF STANDALONE}
-	var
-		usesman : TUsesManager := TUsesManager.Create(IOTAUtils.GxOtaGetCurrentSourceEditor);
-		try var fn : string := TPath.GetFileNameWithoutExtension(GetResultSelectedFilePath);
-
-	var
-	st := usesman.GetUsesStatus(fn);
-	if (usNonExisting = st) then begin
-		if _bToImpl then begin
-			usesman.AddToImpSection(fn);
-		end else begin
-			usesman.AddToIntSection(fn);
+	var unitName := TPath.GetFileNameWithoutExtension(GetResultSelectedFilePath());
+	case IOTAUtils.AddUnitToUses(unitName, _bToImpl) of
+		aurInInterface : begin
+			TMsgBox.ShowInfo(Format('Unit %s is already in interface section.', [unitName]));
 		end;
-	end else begin
-		TMsgBox.ShowInfo(Format('Unit %s is already in %s section.', [fn, IfThen(st = usInterface, 'interface', 'implementation')]));
+		aurInImplementation : begin
+			TMsgBox.ShowInfo(Format('Unit %s is already in implementation section.', [unitName]));
+		end;
+		aurSameUnit : begin
+			TMsgBox.ShowInfo('A unit cannot use itself.');
+		end;
+		aurUnsupportedSource : begin
+			TMsgBox.ShowWarning('Could not safely add the unit. Open a Pascal unit with unconditional uses clauses, ' +
+				'and add the unit manually if its header uses include files or conditional compilation.');
+		end;
 	end;
-
-finally
-	usesman.Free;
-end;
-{$ENDIF}
+	{$ENDIF}
 end;
 
 procedure TRipGrepperMiddleFrame.AfterHistObjChange;

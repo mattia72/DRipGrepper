@@ -15,6 +15,7 @@ uses
 	System.Win.Registry,
 	Winapi.Windows,
 	RipGrepper.Common.IOTAUtils.Constants,
+	RipGrepper.Common.PascalUses,
 	RipGrepper.Common.RegistryUtils,
 	RipGrepper.Common.IOTAUtils.PathProcessor;
 
@@ -146,6 +147,8 @@ type
 			class procedure executeProjectCompilation(const _compileMode : TOTACompileMode);
 
 		public
+			// Adds a unit to the active source buffer as one undoable UTF-8 insertion.
+			class function AddUnitToUses(const _unitName : string; _toImplementation : Boolean) : TAddUnitResult;
 			class function AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
 			class function FileMatchesExtension(const FileName, FileExtension : string) : Boolean;
 			class function FileMatchesExtensions(const FileName : string; FileExtensions : array of string) : Boolean; overload;
@@ -290,6 +293,44 @@ uses
 	Spring,
 
 	System.UITypes;
+
+class function IOTAUtils.AddUnitToUses(const _unitName : string; _toImplementation : Boolean) : TAddUnitResult;
+var
+	insertion : TUsesInsertion;
+	sourceBytes, insertedBytes : UTF8String;
+	reader : IOTAEditReader;
+	writer : IOTAEditWriter;
+begin
+	Result := aurUnsupportedSource;
+	var editor := GxOtaGetCurrentSourceEditor();
+	if not Assigned(editor) then begin
+		Exit;
+	end;
+	var stream := TMemoryStream.Create();
+	try
+		reader := editor.CreateReader();
+		try
+			GxOtaSaveReaderToStream(reader, stream, False);
+		finally
+			reader := nil;
+		end;
+		SetString(sourceBytes, PAnsiChar(stream.Memory), Integer(stream.Size));
+	finally
+		stream.Free;
+	end;
+	var source := UTF8ToString(sourceBytes);
+	Result := TPascalUses.PlanInsertion(source, _unitName, _toImplementation, insertion);
+	if Result <> aurAdded then begin
+		Exit;
+	end;
+	// OTA positions count UTF-8 bytes, while the parser indexes UTF-16 characters.
+	var bytePosition := Length(UTF8Encode(Copy(source, 1, insertion.Position)));
+	insertedBytes := UTF8Encode(insertion.Text);
+	writer := GxOtaGetEditWriterForSourceEditor(editor);
+	writer.CopyTo(bytePosition);
+	writer.Insert(PAnsiChar(insertedBytes));
+	writer := nil;
+end;
 
 class function IOTAUtils.AddToImageList(_bmp : Vcl.Graphics.TBitmap; const _identText : string) : Integer;
 var

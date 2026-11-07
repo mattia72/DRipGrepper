@@ -645,7 +645,7 @@ begin
 	result := ai.InsertIfNotContains(2, 10);
 
 	Assert.IsTrue(result, 'Should return true when item is inserted');
-	Assert.AreEqual(6, Length(ai.Items), 'Array length should increase by 1');
+	Assert.AreEqual<NativeInt>(6, Length(ai.Items), 'Array length should increase by 1');
 	Assert.AreEqual(10, ai.Items[2], 'Item should be at specified index');
 	Assert.IsTrue(ai.Compare([1, 2, 10, 3, 4, 5]), 'Array should contain item at correct position');
 end;
@@ -660,7 +660,7 @@ begin
 	result := ai.InsertIfNotContains(0, 42);
 
 	Assert.IsTrue(result, 'Should return true when inserting into empty array');
-	Assert.AreEqual(1, Length(ai.Items), 'Array length should be 1');
+	Assert.AreEqual<NativeInt>(1, Length(ai.Items), 'Array length should be 1');
 	Assert.AreEqual(42, ai.Items[0], 'Item should be at index 0');
 end;
 
@@ -668,7 +668,7 @@ procedure TArrayExTest.InsertIfNotContainsAlreadyExistsTest();
 var
 	ai : TArrayEx<integer>;
 	result : boolean;
-	originalLength : integer;
+	originalLength : NativeInt;
 begin
 	// Test inserting an item that already exists
 	ai := [1, 2, 3, 4, 5];
@@ -676,7 +676,7 @@ begin
 	result := ai.InsertIfNotContains(2, 3);
 
 	Assert.IsFalse(result, 'Should return false when item already exists');
-	Assert.AreEqual(originalLength, Length(ai.Items), 'Array length should not change');
+	Assert.AreEqual<NativeInt>(originalLength, Length(ai.Items), 'Array length should not change');
 	Assert.IsTrue(ai.Compare([1, 2, 3, 4, 5]), 'Array should remain unchanged');
 end;
 
@@ -690,7 +690,7 @@ begin
 	result := ai.InsertIfNotContains(0, 5);
 
 	Assert.IsTrue(result, 'Should return true when inserting at beginning');
-	Assert.AreEqual(4, Length(ai.Items), 'Array length should increase by 1');
+	Assert.AreEqual<NativeInt>(4, Length(ai.Items), 'Array length should increase by 1');
 	Assert.AreEqual(5, ai.Items[0], 'Item should be at index 0');
 	Assert.IsTrue(ai.Compare([5, 10, 20, 30]), 'Array should have item at beginning');
 end;
@@ -705,7 +705,7 @@ begin
 	result := ai.InsertIfNotContains(3, 40);
 
 	Assert.IsTrue(result, 'Should return true when inserting at end');
-	Assert.AreEqual(4, Length(ai.Items), 'Array length should increase by 1');
+	Assert.AreEqual<NativeInt>(4, Length(ai.Items), 'Array length should increase by 1');
 	Assert.AreEqual(40, ai.Items[3], 'Item should be at last index');
 	Assert.IsTrue(ai.Compare([10, 20, 30, 40]), 'Array should have item at end');
 end;
@@ -720,7 +720,7 @@ begin
 	result := as_.InsertIfNotContains(2, 'epsilon');
 
 	Assert.IsTrue(result, 'Should return true when inserting string');
-	Assert.AreEqual(5, Length(as_.Items), 'Array length should increase by 1');
+	Assert.AreEqual<NativeInt>(5, Length(as_.Items), 'Array length should increase by 1');
 	Assert.AreEqual('epsilon', as_.Items[2], 'String should be at index 2');
 	Assert.IsTrue(as_.Compare(['alpha', 'beta', 'epsilon', 'gamma', 'delta']), 'Array should have string at correct position');
 end;

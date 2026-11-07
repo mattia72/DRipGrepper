@@ -79,6 +79,7 @@ contains
   RipGrepper.Common.GuiSearchParams in '..\..\..\..\src\Common\RipGrepper.Common.GuiSearchParams.pas',
   RipGrepper.Common.Interfaces in '..\..\..\..\src\Common\RipGrepper.Common.Interfaces.pas',
   RipGrepper.Common.IOTAUtils in '..\..\..\..\src\Common\RipGrepper.Common.IOTAUtils.pas',
+  RipGrepper.Common.PascalUses in '..\..\..\..\src\Common\RipGrepper.Common.PascalUses.pas',
   RipGrepper.Common.NodeData in '..\..\..\..\src\Common\RipGrepper.Common.NodeData.pas',
   RipGrepper.Common.ParsedObject in '..\..\..\..\src\Common\RipGrepper.Common.ParsedObject.pas',
   RipGrepper.Common.SearchParams in '..\..\..\..\src\Common\RipGrepper.Common.SearchParams.pas',

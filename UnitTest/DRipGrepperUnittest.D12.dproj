@@ -114,6 +114,8 @@
         <DCCReference Include="RipGrepper.CommandLine.OptionStrings.Test.pas"/>
         <DCCReference Include="RipGrepper.CommandLine.OptionsHelper.Test.pas"/>
         <DCCReference Include="RipGrepper.Common.ArrayExTest.pas"/>
+        <DCCReference Include="..\src\Common\RipGrepper.Common.PascalUses.pas"/>
+        <DCCReference Include="RipGrepper.Common.PascalUses.Test.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.Constants.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.GuiSearchParams.pas"/>
         <DCCReference Include="..\src\Common\RipGrepper.Common.IOTAUtils.pas"/>
