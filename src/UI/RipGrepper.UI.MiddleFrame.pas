@@ -126,8 +126,8 @@ type
 		procedure VstResultDrawText(Sender : TBaseVirtualTree; TargetCanvas : TCanvas; Node : PVirtualNode; Column : TColumnIndex;
 				const Text : string; const CellRect : TRect; var DefaultDraw : Boolean);
 		procedure VstResultFreeNode(Sender : TBaseVirtualTree; Node : PVirtualNode);
-		procedure VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
-				var Ghosted : Boolean; var ImageIndex : TImageIndex);
+		procedure VstResultGetImageIndexEx(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
+				var Ghosted : Boolean; var ImageIndex : TImageIndex; var ImageList : TCustomImageList);
 		procedure VstResultGetHint(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex;
 				var LineBreakStyle : TVTTooltipLineBreakStyle; var HintText : string);
 		procedure VstResultGetHintKind(Sender : TBaseVirtualTree; Node : PVirtualNode; Column : TColumnIndex; var Kind : TVTHintKind);
@@ -208,7 +208,7 @@ type
 			procedure SetDeleteIconOnHotNodeForColumn(const _colNum : Integer; Sender : TBaseVirtualTree; Node : PVirtualNode;
 					Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
 			procedure SetFileIconImgIdx(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind; Column : TColumnIndex;
-					var Ghosted : Boolean; var ImageIndex : TImageIndex);
+					var Ghosted : Boolean; var ImageIndex : TImageIndex; var ImageList : TCustomImageList);
 			procedure SetHistItemObject(const Value : IHistoryItemObject);
 			function SliceArgs(const _rgp : TRipGrepParameterSettings) : TStringsArrayEx;
 			function GetLastVisibleColumnIndex() : Integer;
@@ -1004,6 +1004,9 @@ begin
 	VstResult.TreeOptions.StringOptions := VstResult.TreeOptions.StringOptions + [toShowStaticText];
 	VstResult.TreeOptions.PaintOptions := VstResult.TreeOptions.PaintOptions + [toUseExplorerTheme];
 	VstResult.NodeDataSize := SizeOf(TVSFileNodeData);
+	if Assigned(FIconImgList.FileImageList) then begin
+		VstResult.Images := FIconImgList.FileImageList;
+	end;
 
 	ReloadColorSettings;
 	UpdateColumnVisibility;
@@ -1016,6 +1019,7 @@ begin
 		PopupMenuResult.Items[0].Visible := False;
 	end;
 	FIsInitialized := True;
+	SetColumnWidths;
 end;
 
 procedure TRipGrepperMiddleFrame.InitSearch;
@@ -1203,8 +1207,22 @@ begin
 end;
 
 procedure TRipGrepperMiddleFrame.SetColumnWidths;
+var
+	padding, minNodeHeight, fileColumnWidth : Integer;
 begin
-	VstResult.Header.Columns[COL_FILE].Width := IfThen(toCheckSupport in VstResult.TreeOptions.MiscOptions, 70, 50);
+	padding := MulDiv(2, VstResult.CurrentPPI, 96);
+	fileColumnWidth := MulDiv(IfThen(toCheckSupport in VstResult.TreeOptions.MiscOptions, 70, 50), VstResult.CurrentPPI, 96);
+	if Assigned(VstResult.Images) then begin
+		// Compact rows must still leave room for the complete image, including its bottom edge.
+		minNodeHeight := VstResult.Images.Height + padding;
+		if VstResult.DefaultNodeHeight < minNodeHeight then begin
+			VstResult.ScaleNodeHeights(minNodeHeight, VstResult.DefaultNodeHeight);
+			VstResult.DefaultNodeHeight := minNodeHeight;
+		end;
+		fileColumnWidth := Max(fileColumnWidth, VstResult.Margin + VstResult.Indent + VstResult.Images.Width + 2 * padding +
+			IfThen(toCheckSupport in VstResult.TreeOptions.MiscOptions, MulDiv(20, VstResult.CurrentPPI, 96), 0));
+	end;
+	VstResult.Header.Columns[COL_FILE].Width := fileColumnWidth;
 	FHeaderRowRect := VstResult.Header.Columns[COL_ROW_NUM].GetRect();
 	FHeaderColRect := VstResult.Header.Columns[COL_COL_NUM].GetRect();
 end;
@@ -1689,7 +1707,7 @@ begin
 					// If Col is in the trimmed content (e.g., Col = 1), IndentLines should be ignored
 					if (nodeData.MatchData.ColBegin <= (iTrimmedSpaces + iTrimmedTabs)) then begin
 						matchBegin := nodeData.MatchData.ColBegin;
-						s := nodeData.MatchData.LineText; // full line
+						s := nodeData.GetLineText(False, iTrimmedSpaces, iTrimmedTabs);
 					end else begin
 						matchBegin := nodeData.MatchData.ColBegin - (iTrimmedSpaces + iTrimmedTabs);
 					end;
@@ -1723,12 +1741,12 @@ begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.MatchText);
 					end;
 					// if not IsRgReplaceMode then begin
-					TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1);
+					TargetCanvas.TextOut(CellRect.Left + pos, TItemDrawer.GetAlignedTextTop(TargetCanvas, CellRect), ss1);
 					pos := pos + TargetCanvas.TextWidth(ss1);
 					// end;
 					if IsGuiReplaceMode or IsRgReplaceMode then begin
 						TItemDrawer.SetTextColor(TargetCanvas, FColorSettings.ReplaceText);
-						TargetCanvas.TextOut(CellRect.Left + pos, TREEVIEW_FONTSPACE, ss1_repl);
+						TargetCanvas.TextOut(CellRect.Left + pos, TItemDrawer.GetAlignedTextTop(TargetCanvas, CellRect), ss1_repl);
 						pos := pos + TargetCanvas.TextWidth(ss1_repl);
 					end;
 
@@ -1749,9 +1767,11 @@ begin
 	NodeData^.FilePath := ''; // so we don't have mem leaks
 end;
 
-procedure TRipGrepperMiddleFrame.VstResultGetImageIndex(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
-Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
+procedure TRipGrepperMiddleFrame.VstResultGetImageIndexEx(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
+Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex; var ImageList : TCustomImageList);
 begin
+	ImageIndex := -1;
+	ImageList := ImageListListView;
 	if not(Kind in [ikNormal, ikSelected]) then begin
 		Exit;
 	end;
@@ -1763,7 +1783,7 @@ begin
 		SetDeleteIconOnHotNodeForColumn(COL_FILE, Sender, Node, Column, Ghosted, ImageIndex);
 
 		if (ImageIndex = -1) and Settings.NodeLookSettings.ShowFileIcon then begin
-			SetFileIconImgIdx(Sender, Node, Kind, Column, Ghosted, ImageIndex);
+			SetFileIconImgIdx(Sender, Node, Kind, Column, Ghosted, ImageIndex, ImageList);
 		end;
 	end;
 end;
@@ -1973,6 +1993,9 @@ begin
 		dbgMsg.MsgFmt('New VstResult Fonts: %d', [VstResult.Font.Height]);
 
 	end;
+	if FIsInitialized then begin
+		SetColumnWidths;
+	end;
 end;
 
 procedure TRipGrepperMiddleFrame.DeleteResultNode(const node : PVirtualNode);
@@ -2155,7 +2178,7 @@ begin
 end;
 
 procedure TRipGrepperMiddleFrame.SetFileIconImgIdx(Sender : TBaseVirtualTree; Node : PVirtualNode; Kind : TVTImageKind;
-Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex);
+Column : TColumnIndex; var Ghosted : Boolean; var ImageIndex : TImageIndex; var ImageList : TCustomImageList);
 var
 	NodeData : PVSFileNodeData;
 begin
@@ -2172,6 +2195,9 @@ begin
 					ImageIndex := LV_IMG_IDX_INFO;
 				end else begin;
 					ImageIndex := FIconImgList.GetIconImgIndex(NodeData^.FilePath);
+					if ImageIndex >= 0 then begin
+						ImageList := FIconImgList.FileImageList;
+					end;
 				end;
 			end;
 		end;

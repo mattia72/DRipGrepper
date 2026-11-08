@@ -146,6 +146,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           PopupMenu = PopupMenuResult
           ShowHint = True
           TabOrder = 0
+          TextMargin = 2
           TreeOptions.AutoOptions = [toAutoDropExpand, toAutoExpand, toAutoScrollOnExpand, toAutoSort, toAutoSpanColumns, toAutoTristateTracking, toAutoHideButtons, toAutoDeleteMovedNodes, toAutoChangeScale]
           TreeOptions.SelectionOptions = [toFullRowSelect]
           OnBeforeCellPaint = VstResultBeforeCellPaint
@@ -158,7 +159,7 @@ object RipGrepperMiddleFrame: TRipGrepperMiddleFrame
           OnGetText = VstResultGetText
           OnPaintText = VstResultPaintText
           OnGetHintKind = VstResultGetHintKind
-          OnGetImageIndex = VstResultGetImageIndex
+          OnGetImageIndexEx = VstResultGetImageIndexEx
           OnGetHint = VstResultGetHint
           OnHeaderClick = VstResultHeaderClick
           OnHeaderDragged = VstResultHeaderDragged

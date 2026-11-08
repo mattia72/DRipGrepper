@@ -50,7 +50,8 @@ uses
 	System.SysUtils,
 	System.IOUtils,
 	RipGrepper.Helper.Types,
-	RipGrepper.Tools.DebugUtils;
+	RipGrepper.Tools.DebugUtils,
+	RipGrepper.Common.Constants;
 
 function TVSFileNodeData.GetLineText(const _bTrimLeft : Boolean; var _iSpaceCount, _iTabCount : Integer) : string;
 var
@@ -73,7 +74,8 @@ begin
 	end else begin
 		Result := MatchData.LineText;
 	end;
-
+	// JSON results include the source line ending. Keep other trailing whitespace and the raw data intact.
+	Result := Result.TrimRight([CR, LF]);
 end;
 
 class function TVSFileNodeData.New(const _file : string; const _row, _colBegin, _colEnd : Integer; const _textBefore : string;
