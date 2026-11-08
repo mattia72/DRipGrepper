@@ -55,6 +55,7 @@ object MiddleLeftFrame: TMiddleLeftFrame
       PopupMenu = PopupMenuHistory
       ShowHint = True
       TabOrder = 0
+      TextMargin = 2
       TreeOptions.PaintOptions = [toShowBackground, toShowButtons, toShowDropmark, toShowTreeLines, toThemeAware, toUseBlendedImages]
       TreeOptions.SelectionOptions = [toFullRowSelect, toSiblingSelectConstraint, toAlwaysSelectNode]
       OnBeforeCellPaint = VstHistoryBeforeCellPaint
