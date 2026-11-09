@@ -73,11 +73,10 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_Locale>1033</VerInfo_Locale>
     <DCC_UsePackage>rtl;vcl;designide;$(DCC_UsePackage)</DCC_UsePackage>
-    <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.227;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>227</VerInfo_Build>
+    <VerInfo_MajorVer>5</VerInfo_MajorVer>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=5.0.0.233;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipExtensions;ProductVersion=5.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>233</VerInfo_Build>
     <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
-    <VerInfo_MinorVer>16</VerInfo_MinorVer>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Base_Win64)'!=''">
@@ -99,13 +98,12 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
     <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
-    <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.233;ProgramID=com.embarcadero.DRipExtensions.D11;ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_MajorVer>5</VerInfo_MajorVer>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=5.0.0.233;ProgramID=com.embarcadero.DRipExtensions.D11;ProductName=DRipExtensions;ProductVersion=5.0.0;Comments=beta</VerInfo_Keys>
     <VerInfo_Build>233</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <Manifest_File>..\Delphi12\(None)</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
-    <VerInfo_MinorVer>16</VerInfo_MinorVer>
     <Icon_MainIcon>..\..\..\icons\Drip.ico</Icon_MainIcon>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
@@ -117,13 +115,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    <VerInfo_MajorVer>4</VerInfo_MajorVer>
+    <VerInfo_MajorVer>5</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.445;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>445</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=5.0.0.234;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=5.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>234</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <DCC_Description>RipGrep Search within Delphi</DCC_Description>
-    <VerInfo_MinorVer>16</VerInfo_MinorVer>
     <Manifest_File>(Ohne)</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
     <DCC_MapFile>3</DCC_MapFile>
@@ -203,7 +200,9 @@
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SVGIconDataModule.pas">
+      <Form>SVGIconDataModule</Form>
       <FormType>dfm</FormType>
+      <DesignClass>TDataModule</DesignClass>
     </DCCReference>
     <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.Constants.pas" />
     <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.GuiSearchParams.pas" />
@@ -286,6 +285,7 @@
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.RegexTemplateMenu.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.PersistableArray.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.RegexTemplateSettings.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SearchPathHistoryByContext.pas" />
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.TabSeparatedConfigForm.pas">
       <FormType>dfm</FormType>
     </DCCReference>
