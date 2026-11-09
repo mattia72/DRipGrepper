@@ -125,18 +125,18 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.170;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.180;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
     <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
-    <VerInfo_Build>170</VerInfo_Build>
+    <VerInfo_Build>180</VerInfo_Build>
     <VerInfo_MinorVer>16</VerInfo_MinorVer>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.173;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.178;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    <VerInfo_Build>173</VerInfo_Build>
+    <VerInfo_Build>178</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MinorVer>16</VerInfo_MinorVer>
     <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
@@ -155,16 +155,16 @@
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.204;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>204</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.445;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>445</VerInfo_Build>
     <VerInfo_MinorVer>16</VerInfo_MinorVer>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.203;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>203</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.494;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>494</VerInfo_Build>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <VerInfo_MinorVer>16</VerInfo_MinorVer>
@@ -245,7 +245,11 @@
     <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ConfigForm.pas">
       <Form>ConfigForm</Form>
     </DCCReference>
+    <DCCReference Include="..\..\UI\RipGrepper.UI.DateFilterForm.pas">
+      <Form>DateFilterForm</Form>
+    </DCCReference>
     <DCCReference Include="..\..\UI\RipGrepper.UI.DpiScaler.pas" />
+    <DCCReference Include="..\..\UI\RipGrepper.UI.HintBuilder.pas" />
     <DCCReference Include="..\..\UI\RipGrepper.UI.MiddleLeftFrame.pas">
       <Form>MiddleLeftFrame</Form>
       <DesignClass>TFrame</DesignClass>
@@ -282,7 +286,12 @@
     <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.AppSettingsForm.pas">
       <Form>AppSettingsForm</Form>
     </DCCReference>
-    <DCCReference Include="..\..\UI\RipGrepper.UI.SettingsFormBase.pas" />
+    <DCCReference Include="..\..\UI\RipGrepper.UI.BaseForm.pas">
+      <Form>BaseForm</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\UI\RipGrepper.UI.SettingsFormBase.pas">
+      <Form>SettingsBaseForm</Form>
+    </DCCReference>
     <DCCReference Include="..\..\Settings\RipGrepper.Settings.FontColors.pas" />
     <DCCReference Include="..\..\UI\RipGrepper.UI.ColorSelectorFrame.pas">
       <Form>ColorSelectorFrame</Form>
@@ -320,6 +329,7 @@
     <DCCReference Include="..\..\UI\RipGrepper.UI.Settings.ExtensionContexPanel.pas" />
     <DCCReference Include="..\..\Common\RipGrepper.Common.IDEContextValues.pas" />
     <DCCReference Include="..\..\UI\RipGrepper.UI.SearchForm.CtrlValueProxy.pas" />
+    <DCCReference Include="..\..\UI\RipGrepper.UI.SearchPathHistoryByContext.pas" />
     <DCCReference Include="..\..\UI\RipGrepper.UI.CustomRadioOptions.pas" />
     <DCCReference Include="..\..\UI\RipGrepper.UI.CustomCheckOptions.pas" />
     <DCCReference Include="..\..\UI\RipGrepper.UI.RgOptionsPanel.pas" />
@@ -328,6 +338,7 @@
     <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas" />
     <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.Constants.pas" />
     <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas" />
+    <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.IconLabel.pas" />
     <DCCReference Include="..\..\UI\RipGrepper.UI.SVGIconDataModule.pas">
       <FormType>dfm</FormType>
     </DCCReference>

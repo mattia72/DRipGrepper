@@ -100,8 +100,8 @@
     <Debugger_HostApplication>C:\Program Files (x86)\Embarcadero\Studio\22.0\bin\bds.exe</Debugger_HostApplication>
     <DCC_ShowGeneralMessages>true</DCC_ShowGeneralMessages>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.231;ProgramID=com.embarcadero.DRipExtensions.D11;ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>231</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.233;ProgramID=com.embarcadero.DRipExtensions.D11;ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>233</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <Manifest_File>..\Delphi12\(None)</Manifest_File>
     <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
@@ -119,8 +119,8 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_MajorVer>4</VerInfo_MajorVer>
     <VerInfo_Locale>1033</VerInfo_Locale>
-    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.244;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>244</VerInfo_Build>
+    <VerInfo_Keys>FileDescription=DRipExtensions;FileVersion=4.16.0.445;ProgramID=com.embarcadero.DRipExtensions;ProductName=DRipExtensions;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>445</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
     <DCC_Description>RipGrep Search within Delphi</DCC_Description>
     <VerInfo_MinorVer>16</VerInfo_MinorVer>
@@ -135,7 +135,12 @@
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
     <DCCReference Include="..\..\..\..\src\Tools\RipGrepper.Tools.DebugUtils.pas" />
-    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.BaseForm.pas">
+      <Form>BaseForm</Form>
+    </DCCReference>
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SettingsFormBase.pas">
+      <Form>SettingsBaseForm</Form>
+    </DCCReference>
     <DCCReference Include="..\..\..\..\src\RipGrepper.CommandLine.Builder.pas" />
     <DCCReference Include="..\..\..\..\src\RipGrepper.CommandLine.OptionHelper.pas" />
     <DCCReference Include="..\..\..\..\src\RipGrepper.Data.HistoryItemObject.pas" />
@@ -167,7 +172,11 @@
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.Settings.ConfigForm.pas">
       <Form>ConfigForm</Form>
     </DCCReference>
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.DateFilterForm.pas">
+      <Form>DateFilterForm</Form>
+    </DCCReference>
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.DpiScaler.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.HintBuilder.pas" />
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.MainForm.pas">
       <Form>RipGrepperForm</Form>
     </DCCReference>
@@ -192,6 +201,9 @@
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.TopFrame.pas">
       <Form>RipGrepperTopFrame</Form>
       <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.SVGIconDataModule.pas">
+      <FormType>dfm</FormType>
     </DCCReference>
     <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.Constants.pas" />
     <DCCReference Include="..\..\..\..\src\Common\RipGrepper.Common.GuiSearchParams.pas" />
@@ -268,6 +280,7 @@
     <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas" />
     <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.Constants.pas" />
     <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas" />
+    <DCCReference Include="..\..\..\..\src\UI\Components\RipGrepper.UI.Components.IconLabel.pas" />
     <DCCReference Include="..\..\..\..\src\Helper\RipGrepper.Helper.RegexTemplates.pas" />
     <DCCReference Include="..\..\..\..\src\UI\RipGrepper.UI.RegexTemplateMenu.pas" />
     <DCCReference Include="..\..\..\..\src\Settings\RipGrepper.Settings.PersistableArray.pas" />
