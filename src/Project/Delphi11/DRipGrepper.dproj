@@ -82,14 +82,13 @@
     <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;Bde;$(DCC_Namespace)</DCC_Namespace>
     <BT_BuildType>Debug</BT_BuildType>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.161;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=5.0.0.180;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipGrepper;ProductVersion=5.0.0;Comments=beta</VerInfo_Keys>
     <VerInfo_Locale>1033</VerInfo_Locale>
     <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-    <VerInfo_MajorVer>4</VerInfo_MajorVer>
+    <VerInfo_MajorVer>5</VerInfo_MajorVer>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    <VerInfo_Build>161</VerInfo_Build>
-    <VerInfo_MinorVer>16</VerInfo_MinorVer>
+    <VerInfo_Build>180</VerInfo_Build>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Base_Win64)'!=''">
@@ -97,14 +96,13 @@
     <DCC_Namespace>Winapi;System.Win;Data.Win;Datasnap.Win;Web.Win;Soap.Win;Xml.Win;$(DCC_Namespace)</DCC_Namespace>
     <BT_BuildType>Debug</BT_BuildType>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.161;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=5.0.0.180;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=DRipGrepper;ProductVersion=5.0.0;Comments=beta</VerInfo_Keys>
     <VerInfo_Locale>1033</VerInfo_Locale>
     <Manifest_File>$(BDS)\bin\default_app.manifest</Manifest_File>
-    <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Build>161</VerInfo_Build>
+    <VerInfo_MajorVer>5</VerInfo_MajorVer>
+    <VerInfo_Build>180</VerInfo_Build>
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    <VerInfo_MinorVer>16</VerInfo_MinorVer>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_1)'!=''">
@@ -124,21 +122,19 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.180;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_MajorVer>5</VerInfo_MajorVer>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=5.0.0.180;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=5.0.0;Comments=beta</VerInfo_Keys>
     <DCC_DebugInfoInTds>true</DCC_DebugInfoInTds>
     <VerInfo_Build>180</VerInfo_Build>
-    <VerInfo_MinorVer>16</VerInfo_MinorVer>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_1_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-    <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.178;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_MajorVer>5</VerInfo_MajorVer>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=5.0.0.180;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=5.0.0;Comments=beta</VerInfo_Keys>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
-    <VerInfo_Build>178</VerInfo_Build>
+    <VerInfo_Build>180</VerInfo_Build>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    <VerInfo_MinorVer>16</VerInfo_MinorVer>
     <BRCC_CompilerToUse>rc</BRCC_CompilerToUse>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
@@ -154,20 +150,18 @@
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_Locale>1033</VerInfo_Locale>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.445;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>445</VerInfo_Build>
-    <VerInfo_MinorVer>16</VerInfo_MinorVer>
+    <VerInfo_MajorVer>5</VerInfo_MajorVer>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=5.0.0.181;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=5.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>181</VerInfo_Build>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
     <AppDPIAwarenessMode>PerMonitorV2</AppDPIAwarenessMode>
-    <VerInfo_MajorVer>4</VerInfo_MajorVer>
-    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=4.16.0.494;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=4.16.0;Comments=beta</VerInfo_Keys>
-    <VerInfo_Build>494</VerInfo_Build>
+    <VerInfo_MajorVer>5</VerInfo_MajorVer>
+    <VerInfo_Keys>FileDescription=DRipGrepper;FileVersion=5.0.0.181;ProgramID=com.embarcadero.DRipGrepper;ProductName=DRipGrepper;ProductVersion=5.0.0;Comments=beta</VerInfo_Keys>
+    <VerInfo_Build>181</VerInfo_Build>
     <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
     <VerInfo_AutoIncVersion>true</VerInfo_AutoIncVersion>
-    <VerInfo_MinorVer>16</VerInfo_MinorVer>
     <VerInfo_Release>0</VerInfo_Release>
   </PropertyGroup>
   <ItemGroup>

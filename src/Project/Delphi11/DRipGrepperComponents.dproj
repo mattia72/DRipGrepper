@@ -101,10 +101,9 @@
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.Constants.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas"/>
-        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas"/>
+        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.IconLabel.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.LabeledComboBox.pas"/>
-        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.CheckBoxComboBox.pas"/>
-        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.CheckBoxSpinEdit.pas"/>
+        <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
