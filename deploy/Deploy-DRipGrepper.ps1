@@ -60,7 +60,8 @@ if ($DryRun) {
 }
 
 $global:Url = "https://api.github.com/repos/$global:Owner/$global:Repo/releases"
-$global:Token = $env:GITHUB_TOKEN
+# $global:Token = $env:GITHUB_TOKEN
+$global:Token = (Get-Content -LiteralPath "$PSScriptRoot\SECRET_TOKEN" -TotalCount 1).Trim()
 
 $global:PadRightValue = 45
 $global:InstalledDelphiVersions = @()
@@ -642,25 +643,45 @@ function New-ReleaseWithAsset {
         $zipArr | Format-Table -AutoSize -Property File, LastWriteTime, Length
     }
     if ($DeployToGitHub) {
-        # generate description from CHANGELOG.md
-        $releaseDescription = Get-CurrentVersionChangesFromChangelog
-        $release = New-Release -url $global:Url -headers $global:headers -version $global:Version -description $releaseDescription -preRelease:$global:PreRelease -dryRun:$DryRun
-        
+        $release = $null
         if (-not $DryRun) {
-            New-ReleaseNotes -owner $global:Owner -repo $global:Repo -headers $global:headers -version $global:Version -prevVersion $global:PrevVersion
+            try {
+                $release = Get-Releases -Url $global:Url -Headers $global:headers -Tag $global:Version
+            }
+            catch {
+                if ($_.Exception.Response.StatusCode -ne 404) {
+                    throw
+                }
+            }
+        }
+
+        if ($release) {
+            Write-Host "Release $global:Version already exists. Uploading missing assets only." -ForegroundColor Cyan
         }
         else {
-            Write-Host "DRY RUN: Would generate release notes with parameters" -ForegroundColor Cyan
-            Write-Host "Version:`t$global:Version,`r`ntPrevious Version:`t$global:PrevVersion" 
-            Write-Host "Owner:`t$global:Owner,`r`ntRepo`t$global:Repo" 
-            Write-Host "Headers:`t$($global:headers | Out-String)" 
+            # Generate description and notes only when creating a release.
+            $releaseDescription = Get-CurrentVersionChangesFromChangelog
+            $release = New-Release -url $global:Url -headers $global:headers -version $global:Version -description $releaseDescription -preRelease:$global:PreRelease -dryRun:$DryRun
+
+            if (-not $DryRun) {
+                New-ReleaseNotes -owner $global:Owner -repo $global:Repo -headers $global:headers -version $global:Version -prevVersion $global:PrevVersion
+            }
+            else {
+                Write-Host "DRY RUN: Would generate release notes for $global:Version (previous: $global:PrevVersion)" -ForegroundColor Cyan
+            }
         }
 
         $ReleaseID = $release.id
-        #$ReleaseID = $( Get-Releases -Latest | Select-Object -Property id).id
+        $existingAssetNames = @($release.assets | ForEach-Object { $_.name })
 
         Get-ChildItem $global:AssetsDirectory -Filter "*.zip" | ForEach-Object {
-            Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_.FullName -dryRun:$DryRun }
+            if ($existingAssetNames -ccontains $_.Name) {
+                Write-Host "Asset $($_.Name) already exists in release $global:Version. Skipping." -ForegroundColor Yellow
+            }
+            else {
+                Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_.FullName -dryRun:$DryRun
+            }
+        }
     }
 }
 

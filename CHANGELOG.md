@@ -8,22 +8,6 @@
 
 - Delphi 13 Florence support for the standalone app and IDE extension.
 - File dates shown in application and extension information.
-
-### 🔄 Changed
-
-- Removed the GExperts dependency; **Add to uses** now uses a built-in parser and undoable IDE edits.
-- Updated icon handling and improved the search/replace layout.
-
-### 🐞 Fixed
-
-- Relative-path handling and an exception caused by an empty filename.
-- VirtualTreeView compatibility with Delphi 12/13 and Win64 unit-test compilation.
-
-## [v4.16.0-beta] - 2026-08-24
-
-*In memory of Richard.*
-
-### 💥 Added
 - Date format can be set in settings form.
 - Add support for modified, creation and last access timestamps in results tree
 - Support for changing date column color and font in the UI
@@ -37,11 +21,17 @@ e.g. `86 paths (e.g. C:\...)`
 - Clear log file button in settings form, to allow users to easily clear the log file.
 
 ### 🔄 Changed
+
+- Removed the GExperts dependency; **Add to uses** now uses a built-in parser and undoable IDE edits.
+- Updated icon handling and improved the search/replace layout.
 - One base form to get nice Ok/Cancel buttons. 
 - Visible columns are aligned automatically on startup.
 - Version updated to 4.16.0
 
 ### 🐞 Fixed
+
+- Relative-path handling and an exception caused by an empty filename.
+- VirtualTreeView compatibility with Delphi 12/13 and Win64 unit-test compilation.
 - **extension** Files were wrongly reported as *outside of project scope*. Paths are now normalized (relative, `/`-separated and unnormalized paths) before the comparison, project directories are matched on directory boundaries only, and the units of the project (`ProjectFiles`, `ProjectFilesDirs`) are taken into account, not only the project directory and the library path.
 - **extension** The IDE context (active project, project units, library path) was cached for the whole IDE session, so after switching the active project the *outside of project scope* indicators and the search path warning were still checked against the previous project. It is now invalidated by an IDE notifier when the active project changes and additionally re-checked against the IDE, so the result view is repainted with the paths of the new project.
 - Update version script. 
