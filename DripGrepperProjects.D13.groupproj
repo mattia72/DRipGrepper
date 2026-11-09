@@ -1,0 +1,90 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{F299FCEC-8045-451F-A5C6-D4A62999E465}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="src\Project\Delphi13\DRipGrepper.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="DRipGrepper">
+        <MSBuild Projects="src\Project\Delphi13\DRipGrepper.dproj"/>
+    </Target>
+    <Target Name="DRipGrepper:Clean">
+        <MSBuild Projects="src\Project\Delphi13\DRipGrepper.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DRipGrepper:Make">
+        <MSBuild Projects="src\Project\Delphi13\DRipGrepper.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="DripExtensionD13">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj"/>
+    </Target>
+    <Target Name="DripExtensionD13:Clean">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="DripExtensionD13:Make">
+        <MSBuild Projects="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="DRipGrepper;DripExtensionD13"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="DRipGrepper:Clean;DripExtensionD13:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="DRipGrepper:Make;DripExtensionD13:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+    <ItemGroup Condition="'$(BuildGroup)'=='Debug'">
+        <BuildGroupProject Include="src\Project\Delphi13\DRipGrepper.dproj">
+            <ProjectGuid>{854A4908-12C6-46C3-8233-FFD3132ED063}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj">
+            <ProjectGuid>{B06888B1-609B-48DC-9CCD-15E07788EC17}</ProjectGuid>
+            <Configurations>Debug</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='Release'">
+        <BuildGroupProject Include="src\Project\Delphi13\DRipGrepper.dproj">
+            <ProjectGuid>{854A4908-12C6-46C3-8233-FFD3132ED063}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32;Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj">
+            <ProjectGuid>{B06888B1-609B-48DC-9CCD-15E07788EC17}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+    <ItemGroup Condition="'$(BuildGroup)'=='Release x64'">
+        <BuildGroupProject Include="src\Project\Delphi13\DRipGrepper.dproj">
+            <ProjectGuid>{854A4908-12C6-46C3-8233-FFD3132ED063}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj">
+            <ProjectGuid>{B06888B1-609B-48DC-9CCD-15E07788EC17}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win32</Platforms>
+            <Enabled>False</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+</Project>

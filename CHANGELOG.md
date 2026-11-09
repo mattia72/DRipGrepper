@@ -1,5 +1,24 @@
 ﻿# Changelog
 
+## [v5.0.0-beta] - 2026-11-07
+
+*In memory of Richard.*
+
+### 💥 Added
+
+- Delphi 13 Florence support for the standalone app and IDE extension.
+- File dates shown in application and extension information.
+
+### 🔄 Changed
+
+- Removed the GExperts dependency; **Add to uses** now uses a built-in parser and undoable IDE edits.
+- Updated icon handling and improved the search/replace layout.
+
+### 🐞 Fixed
+
+- Relative-path handling and an exception caused by an empty filename.
+- VirtualTreeView compatibility with Delphi 12/13 and Win64 unit-test compilation.
+
 ## [v4.16.0-beta] - 2026-08-24
 
 *In memory of Richard.*

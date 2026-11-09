@@ -323,6 +323,7 @@ begin
 	Items.Add(TDelphiXE6Up.Create('10.4', '21.0', '270'));
 	Items.Add(TDelphiXE6Up.Create('11', '22.0', '280'));
 	Items.Add(TDelphiXE6Up.Create('12', '23.0', '290'));
+	Items.Add(TDelphiXE6Up.Create('13', '37.0', '370'));
 end;
 
 function TDelphiVersions.Find(const _sVersion : string; var _dv : IDelphiVersion) : Boolean;

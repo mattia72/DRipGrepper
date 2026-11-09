@@ -69,12 +69,15 @@ $Script:ChangelogPath = Join-Path $RootPath "CHANGELOG.md"
 $Script:ProjectFiles = @(
     "src\Project\Delphi11\DRipGrepper.dproj",
     "src\Project\Delphi12\DRipGrepper.dproj",
+    "src\Project\Delphi13\DRipGrepper.dproj",
     "Extension\src\Project\Bpl.Delphi11\DRipExtension.dproj",
     "Extension\src\Project\Bpl.Delphi12\DRipExtension.dproj",
     "Extension\src\Project\Dll.Delphi11\DRipExtensions.D11.dproj",
     "Extension\src\Project\Dll.Delphi12\DRipExtensions.D12.dproj",
+    "Extension\src\Project\Dll.Delphi13\DripExtensionD13.dproj",
     "UnitTest\DRipGrepperUnittest.D11.dproj",
-    "UnitTest\DRipGrepperUnittest.D12.dproj"
+    "UnitTest\DRipGrepperUnittest.D12.dproj",
+    "UnitTest\DRipGrepperUnittest.D13.dproj"
 )
 
 function Write-ColoredMessage {

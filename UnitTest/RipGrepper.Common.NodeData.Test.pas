@@ -20,6 +20,8 @@ type
 			procedure TestFileModifiedTimeAssignment;
 			[Test]
 			procedure TestFileModifiedTimeCompareOrdering;
+			[Test]
+			procedure TestGetLineTextRemovesLineEndings;
 	end;
 
 implementation
@@ -80,6 +82,25 @@ begin
 		'Later date should compare greater than earlier date');
 	Assert.IsTrue(CompareValue(nodeData1.FileModifiedTime, nodeData1.FileModifiedTime) = 0,
 		'Same dates should compare equal');
+end;
+
+procedure TVSFileNodeDataTest.TestGetLineTextRemovesLineEndings;
+var
+	nodeData : TVSFileNodeData;
+	spaces, tabs : Integer;
+	ending, rawText : string;
+begin
+	for ending in TArray<string>.Create('', #10, #13, #13#10) do begin
+		rawText := ' ' + #9 + 'match ' + #9 + ending;
+		nodeData := TVSFileNodeData.New('file.txt', 1, 3, 8, rawText);
+		Assert.AreEqual(' ' + #9 + 'match ' + #9, nodeData.GetLineText(False, spaces, tabs));
+		Assert.AreEqual(0, spaces);
+		Assert.AreEqual(0, tabs);
+		Assert.AreEqual('match ' + #9, nodeData.GetLineText(True, spaces, tabs));
+		Assert.AreEqual(1, spaces);
+		Assert.AreEqual(1, tabs);
+		Assert.AreEqual(rawText, nodeData.MatchData.LineText, 'Display formatting must preserve the raw text');
+	end;
 end;
 
 initialization

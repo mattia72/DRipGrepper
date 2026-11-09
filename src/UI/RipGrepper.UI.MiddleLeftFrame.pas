@@ -13,6 +13,9 @@ uses
 	Vcl.Dialogs,
 	VirtualTrees,
 	VirtualTrees.Types,
+	{$IF CompilerVersion >= 36}
+	VirtualTrees.BaseTree, // TVTHintKind in the D12/D13 Virtual Treeview packages
+	{$ENDIF}
 	RipGrepper.Common.Constants,
 	System.Actions,
 	Vcl.ActnList,

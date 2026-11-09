@@ -22,6 +22,8 @@ uses
   DUnitX.Loggers.XML.NUnit,
   {$ENDIF }
   DUnitX.TestFramework,
+  RipGrepper.Common.PascalUses in '..\src\Common\RipGrepper.Common.PascalUses.pas',
+  RipGrepper.Common.PascalUses.Test in 'RipGrepper.Common.PascalUses.Test.pas',
   ArrayEx in '..\external\ArrayEx.pas',
   Pkg.Json.DTO in 'Pkg.Json.DTO.pas',
   RipGrepper.CommandLine.Builder in '..\src\RipGrepper.CommandLine.Builder.pas',

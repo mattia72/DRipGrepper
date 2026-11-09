@@ -145,6 +145,7 @@ type
 
 	TItemDrawer = class
 		public
+			class function GetAlignedTextTop(TargetCanvas : TCanvas; const _rect : TRect) : Integer;
 			class procedure AlignedTextOut(TargetCanvas : TCanvas; const _rectNode, _rectHeader : TRect; const _text : string;
 				_color : TFontAttributes);
 			class procedure ColoredTextOut(TargetCanvas : TCanvas; const _rect : TRect; const _text : string; _color : TFontAttributes;
@@ -168,9 +169,9 @@ type
 	TIconImageList = class
 		private
 			FImageList : TImageList;
+			FFileImageList : TImageList;
 			FExtIndexDict : TDictionary<string, integer>;
 			FHandleForm : HWND;
-			FImage : TImage;
 
 		public
 			constructor Create(_handleForm : HWND; _imgList : TImageList);
@@ -178,6 +179,7 @@ type
 			function GetIconImgIndex(_sFilePath : string) : integer;
 			function GetImgIndexFromResourceDll(const _sKey : string; const _iconIdxInResourceDll : Integer) : integer;
 			property ImageList : TImageList read FImageList write FImageList;
+			property FileImageList : TImageList read FFileImageList;
 	end;
 
 	TDrawParams = record
@@ -360,6 +362,11 @@ begin
 	Result := idxval;
 end;
 
+class function TItemDrawer.GetAlignedTextTop(TargetCanvas : TCanvas; const _rect : TRect) : Integer;
+begin
+	Result := _rect.Top + (_rect.Height - TargetCanvas.TextHeight('Tg')) div 2;
+end;
+
 class procedure TItemDrawer.AlignedTextOut(TargetCanvas : TCanvas; const _rectNode, _rectHeader : TRect; const _text : string;
 	_color : TFontAttributes);
 begin
@@ -369,14 +376,14 @@ begin
 	var
 	t := _text;
 	TItemDrawer.SetTextColor(TargetCanvas, _color, false);
-	TargetCanvas.TextRect(r, t, [tfRight]);
+	TargetCanvas.TextRect(r, t, [tfRight, tfSingleLine, tfVerticalCenter, tfNoPrefix]);
 end;
 
 class procedure TItemDrawer.ColoredTextOut(TargetCanvas : TCanvas; const _rect : TRect; const _text : string; _color : TFontAttributes;
 	_pos : Integer = 0);
 begin
 	TItemDrawer.SetTextColor(TargetCanvas, _color, false);
-	TargetCanvas.TextOut(_rect.Left + _pos, TREEVIEW_FONTSPACE, _text);
+	TargetCanvas.TextOut(_rect.Left + _pos, GetAlignedTextTop(TargetCanvas, _rect), _text);
 end;
 
 class function TItemDrawer.DrawFileIcon(Canvas : TCanvas; Rect : TRect; Item : TListItem; _img : TImage) : Vcl.Graphics.TBitmap;
@@ -514,33 +521,47 @@ begin
 end;
 
 constructor TIconImageList.Create(_handleForm : HWND; _imgList : TImageList);
+var
+	sfi : TSHFileInfo;
+	shellImages : THandle;
 begin
 	inherited Create();
 	FImageList := _imgList;
 	FHandleForm := _handleForm;
 	FExtIndexDict := TDictionary<string, integer>.Create;
-	FImage := TImage.Create(nil);
+	shellImages := SHGetFileInfo('.txt', FILE_ATTRIBUTE_NORMAL, sfi, SizeOf(sfi),
+		SHGFI_USEFILEATTRIBUTES or SHGFI_SYSICONINDEX or SHGFI_SMALLICON);
+	if shellImages <> 0 then begin
+		FFileImageList := TImageList.Create(nil);
+		// Windows owns this list. Keep its native dimensions, alpha channel, and transparency mask.
+		FFileImageList.ShareImages := True;
+		FFileImageList.Handle := shellImages;
+	end;
 end;
 
 destructor TIconImageList.Destroy;
 begin
 	FExtIndexDict.Free;
-	FImage.Free;
+	FFileImageList.Free;
 	inherited;
 end;
 
 function TIconImageList.GetIconImgIndex(_sFilePath : string) : integer;
 var
 	sExtension : string;
-	bmp : Vcl.Graphics.TBitmap;
+	sfi : TSHFileInfo;
 begin
 	Result := -1;
+	if not Assigned(FFileImageList) then
+		Exit;
 	if TPath.HasValidPathChars(_sFilePath, False) then begin
 		sExtension := TPath.GetExtension(_sFilePath);
 
 		if not FExtIndexDict.TryGetValue(sExtension, Result) then begin
-			bmp := TItemDrawer.GetIconBitmap(_sFilePath, FImage);
-			Result := FImageList.AddMasked(bmp, bmp.TransparentColor);
+			Result := -1;
+			if SHGetFileInfo(PChar(_sFilePath), 0, sfi, SizeOf(TSHFileInfo), SHGFI_SMALLICON or SHGFI_SYSICONINDEX) = 0 then
+				Exit;
+			Result := sfi.iIcon;
 			FExtIndexDict.Add(sExtension, Result);
 		end;
 	end;

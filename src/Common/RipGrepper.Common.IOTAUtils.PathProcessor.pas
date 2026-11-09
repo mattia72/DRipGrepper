@@ -152,6 +152,9 @@ begin
 		{$IF CompilerVersion = COMPILER_VERSION_DELPHI_12}
 		FCompilerVersion := '23.0';
 		{$ENDIF}
+		{$IF CompilerVersion = COMPILER_VERSION_DELPHI_13}
+		FCompilerVersion := '37.0';
+		{$ENDIF}
 		dbgMsg.MsgFmt('FCompilerVersion = %s', [FCompilerVersion]);
 		dbgMsg.MsgFmt('FProjectOptions length %d', [Length(FProjectOptions.GetOptionNames)]);
 	end;

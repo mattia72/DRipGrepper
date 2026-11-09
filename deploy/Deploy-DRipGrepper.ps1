@@ -80,8 +80,20 @@ function Get-DelphiName {
     switch -regex ($versionNumber) {
         "^22\.*" { [PSCustomObject]@{ Name = "Delphi 11 Alexandria"; Dir = "Delphi11" } }
         "^23\.*" { [PSCustomObject]@{ Name = "Delphi 12 Athen"; Dir = "Delphi12" } }
+        "^37\.*" { [PSCustomObject]@{ Name = "Delphi 13 Florence"; Dir = "Delphi13" } }
         Default { "Unknown" }
     }
+}
+
+function Get-ExpertDllBaseName {
+    param (
+        [string]$DelphiDir
+    )
+
+    if ($DelphiDir -eq 'Delphi13') {
+        return 'DripExtensionD13'
+    }
+    return "$global:DllNameWithoutExt.$($DelphiDir -replace 'Delphi', 'D')"
 }
 
 function Get-LastInstalledDelphiVersion {
@@ -320,7 +332,7 @@ function Build-ExpertDllRelease {
 
     $projectPath = Get-ProjectPath "Extension\src\Project" "Dll."
     $latestVersion = Get-LastInstalledDelphiVersion 
-    $dllProjName = "$global:DllNameWithoutExt.$($latestVersion.Data.Dir -replace "Delphi", "D").dproj"
+    $dllProjName = "$(Get-ExpertDllBaseName -DelphiDir $latestVersion.Data.Dir).dproj"
     $result = $null
     # add DesignIde to the msbuild parameters
     # see https://docwiki.embarcadero.com/Libraries/Athens/en/DesignIntf
@@ -478,8 +490,9 @@ function New-ExpertDllZip {
         $ZipDir = $(Join-Path $projectPath "Extension\src\Project\Dll.$($_.Data.Dir)\$ReleaseType\$BuildConfig")
         $AssetDir = $(Join-Path $global:AssetsDirectory "$($_.Data.Dir).Dll")
 
-        $dllName = "$global:DllNameWithoutExt.$($_.Data.Dir -replace "Delphi", "D").dll"
-        $mapName = "$global:DllNameWithoutExt.$($_.Data.Dir -replace "Delphi", "D").map"
+        $dllBaseName = Get-ExpertDllBaseName -DelphiDir $_.Data.Dir
+        $dllName = "$dllBaseName.dll"
+        $mapName = "$dllBaseName.map"
         $dllAssetObj = Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $dllName) -Win64:$false -ReplaceContent
         # Output to pipeline so callers receive these objects (ForEach-Object has its own scope)
         $dllAssetObj

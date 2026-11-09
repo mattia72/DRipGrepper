@@ -19,7 +19,6 @@ Install via Delphi's GetIt Package Manager:
 - SVGIconImageList VCL and FMX
 
 Optional: [TestInsight](https://files.spring4d.com/TestInsight/latest/TestInsightSetup.zip)
-
 #### Install GUI Components 
 If opening the project in the IDE shows an error such as `Class TIconLabel not found`, Delphi usually cannot resolve the design component class while loading a `.dfm` file.
 

@@ -63,6 +63,10 @@ begin
 	{$IF CompilerVersion = COMPILER_VERSION_DELPHI_12}
 	Assert.IsTrue(CompilerVersion = COMPILER_VERSION_DELPHI_12, 'CompilerVersion is ' + FloatToStr(CompilerVersion));
 	{$IFEND}
+ 	{$IF CompilerVersion = COMPILER_VERSION_DELPHI_13}
+	Assert.IsTrue(CompilerVersion = COMPILER_VERSION_DELPHI_13, 'CompilerVersion is ' + FloatToStr(CompilerVersion));
+	{$IFEND}
+
 end;
 
 procedure TTestReleaseUtils.Test_GetAppDirectory_ReturnsValidDirectory();

@@ -5,8 +5,12 @@ inherited TabSeparatedConfigForm: TTabSeparatedConfigForm
   ClientHeight = 303
   ClientWidth = 397
   Position = poDesigned
+  ExplicitWidth = 413
+  ExplicitHeight = 342
   TextHeight = 15
   inherited PanelBottom: TPanel
+    Top = 258
+    Width = 397
     inherited btnOk: TButton
       Action = ActionOk
     end
@@ -14,11 +18,11 @@ inherited TabSeparatedConfigForm: TTabSeparatedConfigForm
       Action = ActionCancel
     end
   end
-  object pnlMain: TPanel
+  object pnlMain: TPanel [1]
     Left = 0
     Top = 0
     Width = 397
-    Height = 253
+    Height = 258
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -26,6 +30,7 @@ inherited TabSeparatedConfigForm: TTabSeparatedConfigForm
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitHeight = 253
     object ToolBar1: TToolBar
       AlignWithMargins = True
       Left = 8
@@ -89,7 +94,7 @@ inherited TabSeparatedConfigForm: TTabSeparatedConfigForm
       Colors.UnfocusedSelectionColor = clWhite
       Colors.UnfocusedSelectionBorderColor = clWhite
       Header.AutoSizeIndex = 0
-      Header.Height = 21
+      Header.Height = 15
       Header.MainColumn = -1
       Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
       TabOrder = 1
@@ -149,37 +154,43 @@ inherited TabSeparatedConfigForm: TTabSeparatedConfigForm
     end
   end
   object SVGIconImageList1: TSVGIconVirtualImageList
-    ImageCollection = SVGIconDataModule.SVGIconImageCollection1
     Images = <
       item
+        CollectionIndex = 52
         CollectionName = 'reply'
         Name = 'reply'
       end
       item
+        CollectionIndex = 53
         CollectionName = 'arrow-up'
         Name = 'arrow-up'
       end
       item
+        CollectionIndex = 54
         CollectionName = 'arrow-down'
         Name = 'arrow-down'
       end
       item
+        CollectionIndex = 18
         CollectionName = 'rocket'
         Name = 'rocket'
       end
       item
+        CollectionIndex = 55
         CollectionName = 'add'
         Name = 'add'
       end
       item
+        CollectionIndex = 56
         CollectionName = 'remove'
         Name = 'remove'
       end
       item
+        CollectionIndex = 48
         CollectionName = 'folder-opened'
         Name = 'folder-opened'
       end>
-    Scaled = True
+    ImageCollection = SVGIconDataModule.SVGIconImageCollection1
     Left = 128
     Top = 152
   end

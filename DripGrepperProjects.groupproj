@@ -12,9 +12,6 @@
         <Projects Include="UnitTest\DRipGrepperUnittest.dproj">
             <Dependencies/>
         </Projects>
-        <Projects Include="..\GExperts\Projects\StandAlone\Grep\src\GExpertsGrep.dproj">
-            <Dependencies/>
-        </Projects>
     </ItemGroup>
     <ProjectExtensions>
         <Borland.Personality>Default.Personality.12</Borland.Personality>
@@ -50,23 +47,14 @@
     <Target Name="DRipGrepperUnittest:Make">
         <MSBuild Projects="UnitTest\DRipGrepperUnittest.dproj" Targets="Make"/>
     </Target>
-    <Target Name="GExpertsGrep">
-        <MSBuild Projects="..\GExperts\Projects\StandAlone\Grep\src\GExpertsGrep.dproj"/>
-    </Target>
-    <Target Name="GExpertsGrep:Clean">
-        <MSBuild Projects="..\GExperts\Projects\StandAlone\Grep\src\GExpertsGrep.dproj" Targets="Clean"/>
-    </Target>
-    <Target Name="GExpertsGrep:Make">
-        <MSBuild Projects="..\GExperts\Projects\StandAlone\Grep\src\GExpertsGrep.dproj" Targets="Make"/>
-    </Target>
     <Target Name="Build">
-        <CallTarget Targets="DRipGrepper;DRipExtension;DRipGrepperUnittest;GExpertsGrep"/>
+        <CallTarget Targets="DRipGrepper;DRipExtension;DRipGrepperUnittest"/>
     </Target>
     <Target Name="Clean">
-        <CallTarget Targets="DRipGrepper:Clean;DRipExtension:Clean;DRipGrepperUnittest:Clean;GExpertsGrep:Clean"/>
+        <CallTarget Targets="DRipGrepper:Clean;DRipExtension:Clean;DRipGrepperUnittest:Clean"/>
     </Target>
     <Target Name="Make">
-        <CallTarget Targets="DRipGrepper:Make;DRipExtension:Make;DRipGrepperUnittest:Make;GExpertsGrep:Make"/>
+        <CallTarget Targets="DRipGrepper:Make;DRipExtension:Make;DRipGrepperUnittest:Make"/>
     </Target>
     <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
 </Project>

@@ -22,7 +22,11 @@ uses
 	Vcl.ImgList,
 	RipGrepper.Settings.SettingVariant,
 	ArrayEx,
-	VirtualTrees.EditLink;
+	VirtualTrees.EditLink,
+	VirtualTrees.BaseAncestorVCL,
+	VirtualTrees.BaseTree,
+	VirtualTrees.AncestorVCL,
+	Vcl.VirtualImageList;
 
 type
 	TTabSeparatedData = record
