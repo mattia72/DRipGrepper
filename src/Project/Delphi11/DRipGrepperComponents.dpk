@@ -35,7 +35,8 @@ requires
   vclactnband,
   vclx,
   xmlrtl,
-  VclSmp;
+  VclSmp,
+  SVGIconImageList;
 
 contains
   RipGrepper.UI.Components.HistoryButtonedEdit in '..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas',
@@ -44,6 +45,7 @@ contains
   RipGrepper.UI.Components.CustomOptionsBase in '..\..\UI\Components\RipGrepper.UI.Components.CustomOptionsBase.pas',
   RipGrepper.UI.Components.IconLabel in '..\..\UI\Components\RipGrepper.UI.Components.IconLabel.pas',
   RipGrepper.UI.Components.LabeledComboBox in '..\..\UI\Components\RipGrepper.UI.Components.LabeledComboBox.pas',
-  RipGrepper.UI.Components.OptionControls in '..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas';
+  RipGrepper.UI.Components.OptionControls in '..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas',
+  RipGrepper.Helper.UI.DarkMode in '..\..\RipGrepper.Helper.UI.DarkMode.pas';
 
 end.
