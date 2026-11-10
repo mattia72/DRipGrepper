@@ -73,6 +73,16 @@ $global:headers = @{
     "X-GitHub-Api-Version" = "2022-11-28"
 }
 
+function Test-DelphiDeploymentEnabled {
+    param (
+        [string]$Name
+    )
+
+    # Delphi 12 support is paused until a licence is sponsored.
+    # Accept compiler directory names, asset directories, and archive names.
+    return $Name -notmatch '(^|\.)Delphi12(\.|$)'
+}
+
 function Get-DelphiName {
     param (
         [string]$versionNumber
@@ -99,7 +109,7 @@ function Get-ExpertDllBaseName {
 
 function Get-LastInstalledDelphiVersion {
     if ($global:InstalledDelphiVersions.Count -eq 0) {
-        Get-InstalledDelphiVersions
+        Get-InstalledDelphiVersions | Out-Null
     }
     return $global:InstalledDelphiVersions[0]
 }
@@ -121,19 +131,24 @@ function Get-InstalledDelphiVersions {
             Get-ChildItem -Path $path | ForEach-Object {
                 $version = $_.PSChildName
                 $delphiName = Get-DelphiName -versionNumber $version
+                if (-not (Test-DelphiDeploymentEnabled -Name $delphiName.Dir)) {
+                    Write-Host "Skipping $($delphiName.Name): support is paused pending licence sponsorship." -ForegroundColor Yellow
+                    return
+                }
                 $installedDelphiVersions += [PSCustomObject]@{ Version = $version; Data = $delphiName }
             }
         }
     }
 
-    $global:InstalledDelphiVersions = $installedDelphiVersions | Sort-Object -Property Version -Descending
+    $global:InstalledDelphiVersions = @($installedDelphiVersions | Sort-Object -Property Version -Descending)
     if ($installedDelphiVersions.Count -eq 0) {
-        Write-Error "No Delphi versions found." 
+        Write-Error "No Delphi versions with active support found. Delphi 12 support is paused pending licence sponsorship."
     }
     else {
         Write-Host "Installed Delphi versions:" -ForegroundColor Blue
         $global:InstalledDelphiVersions | ForEach-Object { Write-Host $_.Data.Name }
     }
+    return $global:InstalledDelphiVersions
 }
 
 function Test-YesAnswer {
@@ -539,6 +554,10 @@ function Get-LatestBuildAssets {
 
     # Group independently by binary type, architecture, and Delphi version.
     $versionedAssets = @(Get-ChildItem -LiteralPath $Path -File -Filter '*.zip' | ForEach-Object {
+        if (-not (Test-DelphiDeploymentEnabled -Name $_.Name)) {
+            Write-Host "Skipping paused Delphi 12 asset: $($_.Name)" -ForegroundColor Yellow
+            return
+        }
         if ($_.Name -match '^(?<Family>DRipGrepper\.(?:x86|x64)|DRipExtension\.(?:Dll|Bpl)\.(?:x86|x64)\.Delphi\d+)\.v?(?<Version>\d+\.\d+\.\d+(?:\.\d+)?)(?:-[0-9A-Za-z.-]+)?\.zip$') {
             [PSCustomObject]@{
                 File = $_
@@ -644,7 +663,9 @@ function New-ReleaseWithAsset {
         $assetArr += New-ExpertDllZip 
 
         # zip dll assets in directories not listed in $assetArr
-        Get-ChildItem $global:AssetsDirectory -Directory | ForEach-Object {
+        Get-ChildItem $global:AssetsDirectory -Directory | Where-Object {
+            Test-DelphiDeploymentEnabled -Name $_.Name
+        } | ForEach-Object {
             if ($($assetArr | Select-Object -ExpandProperty Dir) -notcontains "$global:AssetsDirectoryName\$($_.Name)") {
                 $dllFiles = @(Get-ChildItem -LiteralPath $_.FullName -File -Filter '*.dll')
                 if ($dllFiles.Count -ne 1) {
@@ -668,7 +689,9 @@ function New-ReleaseWithAsset {
 
     if ($DeployToTransferDrive) {
         Write-Host "Copying files to $global:TransferDrive" -ForegroundColor Green
-        Copy-Item -Path $global:AssetsDirectory\* -Destination $global:TransferDrive -Force -Recurse 
+        Get-ChildItem -LiteralPath $global:AssetsDirectory | Where-Object {
+            Test-DelphiDeploymentEnabled -Name $_.Name
+        } | Copy-Item -Destination $global:TransferDrive -Force -Recurse
         $zipArr = List-Assets -Path $global:TransferDrive
         
         # Clear Latest directory before copying new assets

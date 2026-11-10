@@ -10,7 +10,8 @@ if ($parseErrors.Count) {
 }
 
 # Load only the functions under test, avoiding deployment and environment initialization.
-foreach ($name in @('Get-LatestBuildAssets', 'Get-BinaryAssetVersion', 'New-StandaloneZips', 'New-ExpertDllZip')) {
+foreach ($name in @('Test-DelphiDeploymentEnabled', 'Get-DelphiName', 'Get-InstalledDelphiVersions',
+    'Get-LastInstalledDelphiVersion', 'Get-LatestBuildAssets', 'Get-BinaryAssetVersion', 'New-StandaloneZips', 'New-ExpertDllZip')) {
     $definition = $ast.Find({
         param($node)
         $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name
@@ -39,11 +40,14 @@ try {
         'DRipGrepper.x64.v5.0.0.10-beta.zip',
         'DRipGrepper.x64.v5.0.0.100-beta.zip',
         'DRipGrepper.x86.v5.0.0.10-beta.zip',
+        'DRipExtension.Dll.x86.Delphi11.v5.0.0.9-beta.zip',
+        'DRipExtension.Dll.x86.Delphi11.v5.0.0.10-beta.zip',
         'DRipExtension.Dll.x86.Delphi12.v5.0.0.9-beta.zip',
         'DRipExtension.Dll.x86.Delphi12.v5.0.0.10-beta.zip',
         'DRipExtension.Dll.x86.Delphi13.v5.0.0.8-beta.zip',
         'DRipExtension.Dll.x64.Delphi13.v5.0.0.7-beta.zip',
         'DRipExtension.Bpl.x86.Delphi12.v5.0.0.6-beta.zip',
+        'DRipExtension.Bpl.x86.Delphi11.v5.0.0.6-beta.zip',
         'unrecognized.zip',
         'notes.txt'
     )
@@ -58,10 +62,10 @@ try {
     $expected = @(
         'DRipGrepper.x64.v5.0.0.100-beta.zip',
         'DRipGrepper.x86.v5.0.0.10-beta.zip',
-        'DRipExtension.Dll.x86.Delphi12.v5.0.0.10-beta.zip',
+        'DRipExtension.Dll.x86.Delphi11.v5.0.0.10-beta.zip',
         'DRipExtension.Dll.x86.Delphi13.v5.0.0.8-beta.zip',
         'DRipExtension.Dll.x64.Delphi13.v5.0.0.7-beta.zip',
-        'DRipExtension.Bpl.x86.Delphi12.v5.0.0.6-beta.zip'
+        'DRipExtension.Bpl.x86.Delphi11.v5.0.0.6-beta.zip'
     ) | Sort-Object
 
     $selected = @(Get-LatestBuildAssets -Path $testRoot -WarningAction SilentlyContinue)
@@ -77,14 +81,48 @@ try {
     $selected = @(Get-LatestBuildAssets -Path $testRoot -RemoveOlderBuilds -WarningAction SilentlyContinue)
     Assert-Equal ($selected.Name | Sort-Object) $expected 'Cleanup selection'
     $remaining = @(Get-ChildItem -LiteralPath $testRoot -File | Select-Object -ExpandProperty Name | Sort-Object)
-    Assert-Equal $remaining (@($expected) + @('unrecognized.zip', 'notes.txt') | Sort-Object) 'Cleanup preserves winners and unrelated files'
+    $pausedAssets = @($names | Where-Object { $_ -like '*Delphi12*' })
+    Assert-Equal $remaining (@($expected) + $pausedAssets + @('unrecognized.zip', 'notes.txt') | Sort-Object) 'Cleanup preserves winners, paused assets, and unrelated files'
     Assert-Equal (Test-Path -LiteralPath $nestedFile) $true 'Cleanup preserves nested files'
     Write-Host 'PASS: Cleanup deletes only older recognized ZIPs and preserves unrelated/nested files'
+    Write-Host 'PASS: Paused Delphi 12 DLL/BPL archives are excluded from deployment and preserved locally'
 
     $empty = Join-Path $testRoot 'empty'
     [System.IO.Directory]::CreateDirectory($empty) | Out-Null
     Assert-Equal @(Get-LatestBuildAssets -Path $empty -RemoveOlderBuilds).Count 0 'Empty directory'
     Write-Host 'PASS: Empty assets directory'
+
+    foreach ($name in @('Delphi12', 'Delphi12.Dll', 'Delphi12.Bpl')) {
+        Assert-Equal (Test-DelphiDeploymentEnabled -Name $name) $false "Paused compiler/asset directory $name"
+    }
+    foreach ($name in @('Delphi11', 'Delphi13.Dll', 'DRipGrepper.x64.v5.0.0.100-beta.zip')) {
+        Assert-Equal (Test-DelphiDeploymentEnabled -Name $name) $true "Active deployment item $name"
+    }
+
+    # Mock only registry access in a child scope, retaining real discovery and caching.
+    & {
+        $script:registryVersions = @('23.0', '37.0')
+        function Test-Path { param($Path) return $Path -eq 'HKLM:\SOFTWARE\Embarcadero\BDS' }
+        function Get-ChildItem {
+            param($Path)
+            $script:registryVersions | ForEach-Object { [pscustomobject]@{ PSChildName = $_ } }
+        }
+        $global:InstalledDelphiVersions = @()
+        Assert-Equal @((Get-InstalledDelphiVersions).Data.Dir) @('Delphi13') 'Discovery skips paused compiler'
+        Assert-Equal (Get-LastInstalledDelphiVersion).Data.Dir 'Delphi13' 'Build compiler selection'
+        Assert-Equal @((Get-InstalledDelphiVersions).Data.Dir) @('Delphi13') 'Cached discovery'
+        $global:InstalledDelphiVersions = @()
+        Assert-Equal @((Get-LastInstalledDelphiVersion).Data.Dir) @('Delphi13') 'Uncached build compiler selection returns one compiler'
+
+        $script:registryVersions = @('23.0')
+        $global:InstalledDelphiVersions = @()
+        $threw = $false
+        try { Get-InstalledDelphiVersions | Out-Null } catch {
+            $threw = $_.Exception.Message -like '*No Delphi versions with active support*'
+        }
+        Assert-Equal $threw $true 'Only a paused compiler installed fails clearly'
+    }
+    Write-Host 'PASS: Compiler discovery and build selection exclude Delphi 12, including when it is the only installation'
 
     $global:Version = 'v5.0.0-beta'
     Assert-Equal (Get-BinaryAssetVersion -FileVersion '5.0.0.481') 'v5.0.0.481-beta' 'EXE version'

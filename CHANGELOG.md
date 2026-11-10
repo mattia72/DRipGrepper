@@ -11,6 +11,7 @@
 
 ### 🔄 Changed
 
+- Delphi 12 support is paused until somebody sponsors a licence :). Deployment skips Delphi 12 builds and assets in the meantime.
 - Release archive names now include the build number from each EXE or DLL.
 - Deployment selects the newest archive for each binary type, architecture, and Delphi version, and removes older local archives.
 
