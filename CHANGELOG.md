@@ -1,5 +1,25 @@
 ﻿# Changelog
 
+## [v5.1.0-beta] - 2026-11-10
+
+*In memory of Richard.*
+
+### 💥 Added
+
+- Regression tests for adjacent, repeated, Unicode, and zero-length JSON submatches, including lines with up to 100 matches.
+- Tests for release archive versioning and selection of the latest build assets.
+
+### 🔄 Changed
+
+- Release archive names now include the build number from each EXE or DLL.
+- Deployment selects the newest archive for each binary type, architecture, and Delphi version, and removes older local archives.
+
+### 🐞 Fixed
+
+- JSON search results now include every match on a line, each with its own highlight and navigation column.
+- Corrected UTF-8 byte-offset conversion for matches containing or following emoji.
+- Reusing the JSON parser no longer retains results or error state from the previous line.
+
 ## [v5.0.0-beta] - 2026-11-07
 
 *In memory of Richard.*
