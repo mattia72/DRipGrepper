@@ -48,7 +48,8 @@ uses
 	RipGrepper.Helper.RegexTemplates,
 	RipGrepper.UI.BaseForm,
 	RipGrepper.UI.RegexTemplateMenu,
-	RipGrepper.UI.Components.IconLabel;
+	RipGrepper.UI.Components.IconLabel, 
+	Vcl.VirtualImageList;
 
 const
 	RG_OPTIONS_PADDING_LEFT = 4;

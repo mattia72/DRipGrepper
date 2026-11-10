@@ -1,22 +1,30 @@
 inherited OpenWithCommandEditor: TOpenWithCommandEditor
-  Caption = 'OpenWithCommandEditor'
+  Caption = 'Open With - Command Editor'
   ClientHeight = 429
   ClientWidth = 468
   OnShow = FormShow
+  ExplicitWidth = 484
+  ExplicitHeight = 468
   TextHeight = 15
   inherited PanelBottom: TPanel
     Top = 384
     Width = 468
     TabOrder = 1
+    ExplicitTop = 384
+    ExplicitWidth = 468
     inherited btnOk: TButton
-      Left = 312
+      Left = 304
       Top = 14
       Action = ActionOk
+      ExplicitLeft = 304
+      ExplicitTop = 14
     end
     inherited btnCancel: TButton
-      Left = 393
+      Left = 385
       Top = 14
       Action = ActionCancel
+      ExplicitLeft = 385
+      ExplicitTop = 14
     end
   end
   object Panel1: TPanel [1]
@@ -45,7 +53,7 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
         AlignWithMargins = True
         Left = 10
         Top = 72
-        Width = 322
+        Width = 320
         Height = 20
         Margins.Left = 50
         Margins.Top = 15
@@ -54,12 +62,13 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 'Command:'
+        ExplicitWidth = 322
       end
       object Label2: TLabel
         AlignWithMargins = True
         Left = 10
         Top = 22
-        Width = 322
+        Width = 320
         Height = 20
         Margins.Left = 50
         Margins.Top = 15
@@ -68,12 +77,13 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 'Caption:'
+        ExplicitWidth = 322
       end
       object Label4: TLabel
         AlignWithMargins = True
         Left = 10
         Top = 173
-        Width = 322
+        Width = 320
         Height = 20
         Margins.Left = 50
         Margins.Top = 15
@@ -82,12 +92,13 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 'Description:'
+        ExplicitWidth = 322
       end
       object Label3: TLabel
         AlignWithMargins = True
         Left = 10
         Top = 120
-        Width = 322
+        Width = 320
         Height = 20
         Margins.Left = 50
         Margins.Top = 15
@@ -96,9 +107,10 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
         Anchors = [akLeft, akTop, akRight]
         AutoSize = False
         Caption = 'Parameters:'
+        ExplicitWidth = 322
       end
       object btnOpenFile: TButton
-        Left = 428
+        Left = 426
         Top = 91
         Width = 25
         Height = 25
@@ -113,11 +125,12 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
         ParentShowHint = False
         ShowHint = True
         TabOrder = 0
+        ExplicitLeft = 428
       end
       object edtCmdPath: TEdit
         Left = 10
         Top = 92
-        Width = 415
+        Width = 413
         Height = 23
         Margins.Left = 50
         Margins.Top = 8
@@ -125,11 +138,12 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
         Margins.Bottom = 0
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 1
+        ExplicitWidth = 415
       end
       object edtDescr: TEdit
         Left = 10
         Top = 193
-        Width = 415
+        Width = 413
         Height = 23
         Margins.Left = 50
         Margins.Top = 8
@@ -137,11 +151,12 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
         Margins.Bottom = 0
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 2
+        ExplicitWidth = 415
       end
       object edtLabel: TEdit
         Left = 10
         Top = 42
-        Width = 415
+        Width = 413
         Height = 23
         Margins.Left = 50
         Margins.Top = 8
@@ -149,11 +164,12 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
         Margins.Bottom = 0
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 3
+        ExplicitWidth = 415
       end
       object edtParameters: TEdit
         Left = 10
         Top = 140
-        Width = 415
+        Width = 413
         Height = 23
         Margins.Left = 50
         Margins.Top = 8
@@ -161,6 +177,7 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
         Margins.Bottom = 0
         Anchors = [akLeft, akTop, akRight]
         TabOrder = 4
+        ExplicitWidth = 415
       end
     end
     object GroupBox2: TGroupBox
