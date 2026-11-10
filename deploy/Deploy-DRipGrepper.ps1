@@ -438,7 +438,8 @@ function New-StandaloneZips {
         $assetObj = Add-ToAssetsDir -AssetDir $AssetDir -AssetItemPath $(Join-Path  $ZipDir $global:StandaloneAppName) -Win64:$win64 -ReplaceContent
         # Output to pipeline so callers receive this object (ForEach-Object has its own scope)
         $assetObj
-        $dest = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $global:AssetVersion)"
+        $assetVersion = Get-BinaryAssetVersion -FileVersion $assetObj.Version
+        $dest = "$global:AssetsDirectory\$($global:AssetZipName -f $($win64 ? 'x64' : 'x86'), $assetVersion)"
 
         $compress = @{
             Path             = "$AssetDir\*.*"
@@ -498,13 +499,7 @@ function New-ExpertDllZip {
         # Output to pipeline so callers receive these objects (ForEach-Object has its own scope)
         $dllAssetObj
         Add-ToAssetsDir -AssetDir $AssetDir $(Join-Path  $ZipDir $mapName) -Win64:$false
-        # Derive zip version from the DLL's own FileVersion to avoid mismatch with the EXE-based AssetVersion
-        $dllBuildNum = ($dllAssetObj.Version -split '\.')[-1]
-        if ($global:Version -match '^(v?\d+\.\d+\.\d+)(.*)$') {
-            $dllAssetVersion = "$($matches[1]).$dllBuildNum$($matches[2])"
-        } else {
-            $dllAssetVersion = "v$($dllAssetObj.Version)"
-        }
+        $dllAssetVersion = Get-BinaryAssetVersion -FileVersion $dllAssetObj.Version
         $dest = "$global:AssetsDirectory\$($global:AssetExpertZipName -f $($win64 ? 'x64' : 'x86'), $_.Data.Dir, $dllAssetVersion)"
 
         # Write-Host "$AssetDir\*.* to`n $dest" 
@@ -516,6 +511,66 @@ function New-ExpertDllZip {
             Force            = $true
         }
         Compress-Archive @compress
+    }
+}
+
+function Get-BinaryAssetVersion {
+    param (
+        [string]$FileVersion
+    )
+
+    $binaryVersion = [version]$FileVersion
+    if ($binaryVersion.Revision -lt 0) {
+        throw "Binary FileVersion must include a build number: $FileVersion"
+    }
+    if ($global:Version -match '^(v?\d+\.\d+\.\d+)(.*)$') {
+        return "$($matches[1]).$($binaryVersion.Revision)$($matches[2])"
+    }
+    return "v$FileVersion"
+}
+
+function Get-LatestBuildAssets {
+    [CmdletBinding()]
+    param (
+        [string]$Path = $global:AssetsDirectory,
+        [switch]$RemoveOlderBuilds,
+        [switch]$DryRun
+    )
+
+    # Group independently by binary type, architecture, and Delphi version.
+    $versionedAssets = @(Get-ChildItem -LiteralPath $Path -File -Filter '*.zip' | ForEach-Object {
+        if ($_.Name -match '^(?<Family>DRipGrepper\.(?:x86|x64)|DRipExtension\.(?:Dll|Bpl)\.(?:x86|x64)\.Delphi\d+)\.v?(?<Version>\d+\.\d+\.\d+(?:\.\d+)?)(?:-[0-9A-Za-z.-]+)?\.zip$') {
+            [PSCustomObject]@{
+                File = $_
+                Family = $matches.Family
+                Version = [version]$matches.Version
+            }
+        }
+        else {
+            Write-Warning "Cannot determine binary/build from $($_.Name). Keeping it locally and skipping upload."
+        }
+    })
+
+    foreach ($group in ($versionedAssets | Group-Object Family)) {
+        # Numeric version sorting handles builds such as 9, 10, and 100 correctly.
+        # Legacy names without a build number sort below explicitly numbered builds.
+        $sorted = @($group.Group | Sort-Object -Property @{ Expression = { $_.Version }; Descending = $true }, @{ Expression = { $_.File.Name } })
+        $latest = $sorted[0]
+        Write-Host "Selected latest asset: $($latest.File.Name)" -ForegroundColor Cyan
+
+        if ($RemoveOlderBuilds) {
+            foreach ($older in ($sorted | Select-Object -Skip 1)) {
+                if ($DryRun) {
+                    Write-Host "DRY RUN: Would delete older local asset: $($older.File.Name)" -ForegroundColor Yellow
+                }
+                else {
+                    Write-Host "Deleting older local asset: $($older.File.Name)" -ForegroundColor Yellow
+                    Remove-Item -LiteralPath $older.File.FullName -Force -ErrorAction Stop
+                }
+            }
+        }
+
+        $latest.File
     }
 }
 
@@ -576,35 +631,14 @@ function New-ReleaseWithAsset {
     }
 
     if ($DeployToGitHub -or $LocalDeploy -or $DeployToTransferDrive) {
-        # Determine asset version: include build number for local deploys, use CHANGELOG version for GitHub
-        if ($DeployToGitHub) {
-            $global:AssetVersion = $global:Version
-        } else {
-            $projPath = Split-Path -Parent $PSScriptRoot
-            $lastDV = Get-LastInstalledDelphiVersion
-            $exePath = Join-Path $projPath "src\Project\$($lastDV.Data.Dir)\Win64\$BuildConfig\$global:StandaloneAppName"
-            if (Test-Path $exePath) {
-                $fileVer = (Get-Item $exePath).VersionInfo.FileVersion
-                $buildNum = ($fileVer -split '\.')[-1]
-                if ($global:Version -match '^(v?\d+\.\d+\.\d+)(.*)$') {
-                    $global:AssetVersion = "$($matches[1]).$buildNum$($matches[2])"
-                } else {
-                    $global:AssetVersion = "v$fileVer"
-                }
-            } else {
-                $global:AssetVersion = $global:Version
-            }
-        }
+        # Each EXE/DLL archive adds the build number from its own binary.
+        $global:AssetVersion = $global:Version
         Write-Host "Asset version: $global:AssetVersion" -ForegroundColor Cyan
 
-        # Remove items recursively from the AssetsDirectory
+        # Local deployments do not require packaging confirmations.
         if ($LocalDeploy -or $DeployToTransferDrive) {
             $Force = $true
         }
-        if ($BuildStandalone -or $BuildExtension) {
-            Remove-Item -Path "$global:AssetsDirectory\*.zip" -Force -Confirm:$(-not $Force) -ErrorAction SilentlyContinue
-        }
-
         $assetArr = New-StandaloneZips 
         # New-ExtensionZip 
         $assetArr += New-ExpertDllZip 
@@ -612,7 +646,13 @@ function New-ReleaseWithAsset {
         # zip dll assets in directories not listed in $assetArr
         Get-ChildItem $global:AssetsDirectory -Directory | ForEach-Object {
             if ($($assetArr | Select-Object -ExpandProperty Dir) -notcontains "$global:AssetsDirectoryName\$($_.Name)") {
-                $zipPath = "$global:AssetsDirectory\$($global:AssetExpertZipName -f 'x86', $($_.Name -replace '\.Dll$'), $global:AssetVersion)"
+                $dllFiles = @(Get-ChildItem -LiteralPath $_.FullName -File -Filter '*.dll')
+                if ($dllFiles.Count -ne 1) {
+                    Write-Warning "Expected one DLL in $($_.FullName). Skipping extra directory."
+                    return
+                }
+                $dllAssetVersion = Get-BinaryAssetVersion -FileVersion $dllFiles[0].VersionInfo.FileVersion
+                $zipPath = "$global:AssetsDirectory\$($global:AssetExpertZipName -f 'x86', $($_.Name -replace '\.Dll$'), $dllAssetVersion)"
                 if (-not (Test-Path $zipPath)) {
                     Write-Host "Zipping extra directory: $($_.Name)" -ForegroundColor Yellow
                     Compress-Archive -Path "$($_.FullName)\*" -DestinationPath $zipPath -Force
@@ -620,6 +660,7 @@ function New-ReleaseWithAsset {
             }
         }
 
+        $latestAssets = @(Get-LatestBuildAssets -RemoveOlderBuilds -DryRun:$DryRun)
         $assetArr | Format-Table -AutoSize -Property File, Version, LastWriteTime, Length, Dir
         $zipArr = List-Assets -Path $global:AssetsDirectory
         $zipArr | Format-Table -AutoSize -Property File, LastWriteTime, Length
@@ -674,7 +715,7 @@ function New-ReleaseWithAsset {
         $ReleaseID = $release.id
         $existingAssetNames = @($release.assets | ForEach-Object { $_.name })
 
-        Get-ChildItem $global:AssetsDirectory -Filter "*.zip" | ForEach-Object {
+        $latestAssets | ForEach-Object {
             if ($existingAssetNames -ccontains $_.Name) {
                 Write-Host "Asset $($_.Name) already exists in release $global:Version. Skipping." -ForegroundColor Yellow
             }
@@ -729,12 +770,11 @@ function New-Deploy {
         $latest = Get-Releases  -URl $global:Url -Headers $global:headers -Tag $global:Version 
         $ReleaseID = $( $latest | Select-Object -Property id).id
         $assets = $( $latest | Select-Object -ExpandProperty assets | Select-Object -ExpandProperty name )
-        Get-ChildItem $global:AssetsDirectory -Filter "*.zip" | ForEach-Object {
+        Get-LatestBuildAssets -RemoveOlderBuilds -DryRun:$DryRun | ForEach-Object {
             if ($assets -notcontains $_.Name) {
                 Write-Host "Adding asset $($_.Name) to latest release $global:Version" -ForegroundColor Green
-                $answere = Read-Host "Do you want to add this asset? (y/n)"
-                if ($answere -eq "y") {
-                    Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_.FullName 
+                if ($DryRun -or (Test-YesAnswer "Do you want to add this asset?")) {
+                    Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_.FullName -dryRun:$DryRun
                 }
             }
             else {
