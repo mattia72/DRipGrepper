@@ -51,7 +51,7 @@
         <GenPackage>true</GenPackage>
         <DCC_Namespace>System;Xml;Data;Datasnap;Web;Soap;Vcl;Vcl.Imaging;Vcl.Touch;Vcl.Samples;Vcl.Shell;$(DCC_Namespace)</DCC_Namespace>
         <DCC_CBuilderOutput>None</DCC_CBuilderOutput>
-        <DCC_UnitSearchPath>C:\Home\mata\dev\delphi\RipGrepper\src\UI;C:\Home\mata\dev\delphi\RipGrepper\src\Common;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>..\..\UI;..\..\Common;..\..\..\..\spring4d\Library\Delphi11\$(Platform)\$(Config);$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <AppFileExt>bpl</AppFileExt>
         <SanitizedProjectName>DRipGrepperComponents</SanitizedProjectName>
     </PropertyGroup>
@@ -61,10 +61,10 @@
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=1.0.0.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <DCC_UsePackage>xmlrtl;rtl;vclactnband;vclx;vcl;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>xmlrtl;rtl;vclactnband;vclx;vcl;VclSmp;SVGIconImageList;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Base_Win64)'!=''">
-        <DCC_UsePackage>xmlrtl;rtl;vclactnband;vclx;vcl;VclSmp;$(DCC_UsePackage)</DCC_UsePackage>
+        <DCC_UsePackage>xmlrtl;rtl;vclactnband;vclx;vcl;VclSmp;SVGIconImageList;$(DCC_UsePackage)</DCC_UsePackage>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1)'!=''">
         <DCC_Define>DEBUG;$(DCC_Define)</DCC_Define>
@@ -97,6 +97,7 @@
         <DCCReference Include="vclx.dcp"/>
         <DCCReference Include="xmlrtl.dcp"/>
         <DCCReference Include="VclSmp.dcp"/>
+        <DCCReference Include="SVGIconImageList.dcp"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.HistoryButtonedEdit.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.NotifyingControls.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.Constants.pas"/>
@@ -104,6 +105,7 @@
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.IconLabel.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.LabeledComboBox.pas"/>
         <DCCReference Include="..\..\UI\Components\RipGrepper.UI.Components.OptionControls.pas"/>
+        <DCCReference Include="..\..\RipGrepper.Helper.UI.DarkMode.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>
