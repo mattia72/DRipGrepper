@@ -20,9 +20,11 @@ type
 		private
 			FParserData : ILineParserData;
 			FParseResult : IParsedObjectRow;
+			FParseResults : TArrayEx<IParsedObjectRow>;
 			FSearchParams : ISearchParams;
 			procedure addNoMatchToColumData(var _cd : TArrayEx<TColumnData>; const _lineText : string);
 			function GetParseResult : IParsedObjectRow;
+			function GetParseResults : TArray<IParsedObjectRow>;
 			procedure SetParseResult(const Value : IParsedObjectRow);
 			function GetSearchParams : ISearchParams;
 			procedure SetSearchParams(const Value : ISearchParams);
@@ -42,6 +44,7 @@ type
 		public
 			property ParserData : ILineParserData read FParserData write FParserData;
 			property ParseResult : IParsedObjectRow read GetParseResult write SetParseResult;
+			property ParseResults : TArray<IParsedObjectRow> read GetParseResults;
 			property SearchParams : ISearchParams read GetSearchParams write SetSearchParams;
 			constructor Create; virtual;
 			destructor Destroy; override;
@@ -54,6 +57,7 @@ uses
 	RipGrepper.Tools.DebugUtils,
 	RipGrepper.Common.Constants,
 	RipGrepper.Common.SimpleTypes,
+	System.Character,
 	System.SysUtils,
 	System.IOUtils,
 	System.NetEncoding,
@@ -88,6 +92,15 @@ begin
 	Result := FParseResult;
 end;
 
+function TJsonMatchLineParser.GetParseResults : TArray<IParsedObjectRow>;
+begin
+	if FParseResult.IsError or FParseResults.IsEmpty then begin
+		Result := [FParseResult];
+	end else begin
+		Result := FParseResults.Items;
+	end;
+end;
+
 function TJsonMatchLineParser.GetSearchParams : ISearchParams;
 begin
 	Result := FSearchParams;
@@ -96,6 +109,7 @@ end;
 procedure TJsonMatchLineParser.SetParseResult(const Value : IParsedObjectRow);
 begin
 	FParseResult := Value;
+	FParseResults.Clear;
 end;
 
 procedure TJsonMatchLineParser.SetSearchParams(const Value : ISearchParams);
@@ -111,7 +125,10 @@ var
 	jsonType : string;
 begin
 	jsonValue := nil;
+	FParseResult := TParsedObjectRow.Create();
 	FParseResult.ParsedRowNr := _iLnNr;
+	FParseResult.ParserType := FParserData.ParserType;
+	FParseResults.SetItems([FParseResult]);
 
 	// Check if line starts with JSON format
 	if not _sLine.StartsWith('{"') then begin
@@ -226,6 +243,8 @@ var
 	lineText : string;
 	startBytePos, endBytePos : Integer;
 	startCharPos, endCharPos : Integer;
+	matchColumns : TArrayEx<TColumnData>;
+	matchRow : IParsedObjectRow;
 begin
 	// Extract data from {"type":"match","data":{"path":{"text":"..."},"lines":{"text":"..."},"line_number":123,"submatches":[...]}}
 	var
@@ -252,44 +271,50 @@ begin
 		submatchesArray := nil;
 	end;
 
-	// Calculate column from first submatch
+	// Each submatch becomes a separate result with its own columns and highlight.
 	if Assigned(submatchesArray) and (submatchesArray.Count > 0) then begin
-		var
-		submatchItem := submatchesArray.Items[0];
-		if Assigned(submatchItem) and (submatchItem is TJSONObject) then begin
+		for var i := 0 to submatchesArray.Count - 1 do begin
+			matchColumns.Clear;
+			matchColumns.Add(TColumnData.New(ciFile, filePath));
+			matchColumns.Add(TColumnData.New(ciRow, IntToStr(lineNumber)));
 			var
-			submatchObj := submatchItem as TJSONObject;
+			submatchItem := submatchesArray.Items[i];
+			if Assigned(submatchItem) and (submatchItem is TJSONObject) then begin
+				var
+				submatchObj := submatchItem as TJSONObject;
 
-			// Get byte 0 based positions from JSON
-			startBytePos := getJsonIntValue(submatchObj, 'start');
-			endBytePos := getJsonIntValue(submatchObj, 'end');
+				// Get byte 0 based positions from JSON.
+				startBytePos := getJsonIntValue(submatchObj, 'start');
+				endBytePos := getJsonIntValue(submatchObj, 'end');
 
-			if bEncoded then begin
-				startCharPos := startBytePos + 1; // Keep 1-based position
-				endCharPos := endBytePos + 1; // Keep 1-based position
+				if bEncoded then begin
+					startCharPos := startBytePos + 1;
+					endCharPos := endBytePos + 1;
+				end else begin
+					// Convert byte positions to string positions (1-based).
+					startCharPos := BytePosToStringPos(lineText, startBytePos) + 1;
+					endCharPos := BytePosToStringPos(lineText, endBytePos) + 1;
+				end;
+
+				matchColumns.Add(TColumnData.New(ciColBegin, IntToStr(startCharPos)));
+				matchColumns.Add(TColumnData.New(ciColEnd, IntToStr(endCharPos)));
+
+				matchColumns.Add(TColumnData.New(ciText, lineText.Substring(0, startCharPos - 1)));
+				matchColumns.Add(TColumnData.New(ciMatchText, lineText.Substring(startCharPos - 1, endCharPos - startCharPos)));
+				matchColumns.Add(TColumnData.New(ciTextAfterMatch, lineText.Substring(endCharPos - 1)));
 			end else begin
-				// Convert byte positions to string positions (1-based)
-				startCharPos := BytePosToStringPos(lineText, startBytePos) + 1;
-				endCharPos := BytePosToStringPos(lineText, endBytePos) + 1;
+				addNoMatchToColumData(matchColumns, lineText);
 			end;
 
-			_cd.Add(TColumnData.New(ciColBegin, IntToStr(startCharPos)));
-			_cd.Add(TColumnData.New(ciColEnd, IntToStr(endCharPos)));
-
-			// Extract text parts using string positions (startCharPos and endCharPos are 0-based)
-			var
-			beforeText := lineText.Substring(0, startCharPos - 1);
-			var
-			matchText := lineText.Substring(startCharPos - 1, endCharPos - startCharPos);
-			var
-			afterText := lineText.Substring(endCharPos - 1);
-
-			_cd.Add(TColumnData.New(ciText, beforeText));
-			_cd.Add(TColumnData.New(ciMatchText, matchText));
-			_cd.Add(TColumnData.New(ciTextAfterMatch, afterText));
-
-		end else begin
-			addNoMatchToColumData(_cd, lineText);
+			if i = 0 then begin
+				_cd := matchColumns;
+			end else begin
+				matchRow := TParsedObjectRow.Create();
+				matchRow.Columns := matchColumns;
+				matchRow.ParsedRowNr := FParseResult.ParsedRowNr;
+				matchRow.ParserType := FParserData.ParserType;
+				FParseResults.Add(matchRow);
+			end;
 		end;
 	end else begin
 		addNoMatchToColumData(_cd, lineText);
@@ -568,20 +593,28 @@ end;
 
 function TJsonMatchLineParser.BytePosToStringPos(const _utf8Text : string; _bytePos : Integer) : Integer;
 var
-	i, byteCount : Integer;
+	i, byteCount, charLength : Integer;
 begin
 	Result := 0;
 	if _bytePos < 0 then
 		Exit;
 
 	byteCount := 0;
-	for i := 1 to Length(_utf8Text) do begin
+	i := 1;
+	while i <= Length(_utf8Text) do begin
 		if byteCount >= _bytePos then begin
 			Result := i - 1; // 0 based position
 			Exit;
 		end;
-		// Count bytes for current character
-		Inc(byteCount, TEncoding.UTF8.GetByteCount(_utf8Text[i]));
+		// Encode surrogate pairs together so subsequent submatches keep their UTF-16 columns.
+		charLength := 1;
+		if _utf8Text[i].IsHighSurrogate and (i < Length(_utf8Text)) then begin
+			if _utf8Text[i + 1].IsLowSurrogate then begin
+				charLength := 2;
+			end;
+		end;
+		Inc(byteCount, TEncoding.UTF8.GetByteCount(_utf8Text.Substring(i - 1, charLength)));
+		Inc(i, charLength);
 	end;
 
 	// If we reach here, position is at or beyond end

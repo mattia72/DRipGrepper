@@ -39,6 +39,31 @@ type
 			[Test]
 			procedure ParseJsonMatchTestBasic;
 
+			[Test]
+			[TestCase('Separated matches', 'before one gap two end three,one,two,three,8,16,24')]
+			[TestCase('Adjacent matches', 'onetwothree,one,two,three,1,4,7')]
+			[TestCase('Repeated matches', 'test test test,test,test,test,1,6,11')]
+			[TestCase('Unicode before matches', 'ä one 中文 two Ü three,one,two,three,3,10,16')]
+			[TestCase('Emoji before matches', '🚀 one 🚀 two 🚀 three,one,two,three,4,11,18')]
+			[TestCase('Unicode matches', 'ä 中文 🚀,ä,中文,🚀,1,3,6')]
+			procedure ParseJsonMultipleSubmatchesTest(const _lineText, _firstMatch, _secondMatch, _thirdMatch : string;
+				_firstColumn, _secondColumn, _thirdColumn : Integer);
+
+			[Test]
+			[TestCase('Four adjacent submatches', '4,False')]
+			[TestCase('Ten separated submatches', '10,True')]
+			[TestCase('One hundred separated submatches', '100,True')]
+			procedure ParseJsonManySubmatchesTest(_matchCount : Integer; _separated : Boolean);
+
+			[Test]
+			procedure ParseJsonMultipleSubmatchesWithBytesTest;
+
+			[Test]
+			procedure ParseJsonSubmatchesResetTest;
+
+			[Test]
+			procedure ParseJsonZeroLengthSubmatchesTest;
+
 			// Test JSON match lines with parameters and Unicode
 			[Test]
 			[TestCase('Basic ASCII Match', 'test.pas,test line,test,1,0,4')]
@@ -98,6 +123,7 @@ implementation
 uses
 	RipGrepper.Common.Constants,
 	System.Classes,
+	System.JSON,
 	System.SysUtils,
 	RipGrepper.Parsers.JsonMatchLine,
 	RipGrepper.Common.ParsedObject,
@@ -238,6 +264,199 @@ begin
 		Assert.AreEqual('test', pr.Columns[Integer(ciMatchText)].Text, 'Match text should be "test"');
 	finally
 		parser.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonMultipleSubmatchesTest(const _lineText, _firstMatch, _secondMatch,
+	_thirdMatch : string; _firstColumn, _secondColumn, _thirdColumn : Integer);
+var
+	parser : ISearchResultLineParser;
+	jsonObj, dataObj : TJSONObject;
+	submatches : TJSONArray;
+	matchTexts : TArray<string>;
+	columns : TArray<Integer>;
+begin
+	matchTexts := [_firstMatch, _secondMatch, _thirdMatch];
+	columns := [_firstColumn, _secondColumn, _thirdColumn];
+	jsonObj := TJSONObject.Create;
+	try
+		jsonObj.AddPair('type', 'match');
+		dataObj := TJSONObject.Create;
+		jsonObj.AddPair('data', dataObj);
+		dataObj.AddPair('path', TJSONObject.Create.AddPair('text', 'test.pas'));
+		dataObj.AddPair('lines', TJSONObject.Create.AddPair('text', _lineText));
+		dataObj.AddPair('line_number', TJSONNumber.Create(42));
+		submatches := TJSONArray.Create;
+		dataObj.AddPair('submatches', submatches);
+		for var i := 0 to High(matchTexts) do begin
+			var startByte := TEncoding.UTF8.GetByteCount(Copy(_lineText, 1, columns[i] - 1));
+			submatches.AddElement(TJSONObject.Create
+				.AddPair('match', TJSONObject.Create.AddPair('text', matchTexts[i]))
+				.AddPair('start', TJSONNumber.Create(startByte))
+				.AddPair('end', TJSONNumber.Create(startByte + TEncoding.UTF8.GetByteCount(matchTexts[i]))));
+		end;
+
+		parser := TJsonMatchLineParser.Create();
+		parser.SearchParams := FSearchParamMock;
+		parser.ParseLine(7, jsonObj.ToJSON);
+		var results := parser.ParseResults;
+		Assert.AreEqual(3, Length(results), 'Every submatch should produce a result row');
+		Assert.IsTrue(parser.ParseResult = results[0], 'ParseResult should remain the first submatch');
+		for var i := 0 to High(results) do begin
+			var row := results[i];
+			Assert.IsFalse(row.IsError, row.ErrorText);
+			Assert.AreEqual(COLUMN_NUM, row.Columns.Count);
+			Assert.AreEqual('test.pas', row.FilePath);
+			Assert.AreEqual(42, row.Row);
+			Assert.AreEqual(7, row.ParsedRowNr);
+			Assert.AreEqual(columns[i], row.ColBegin, 'Each match should have its own start column');
+			Assert.AreEqual(columns[i] + Length(matchTexts[i]), row.ColEnd);
+			Assert.AreEqual(matchTexts[i], row.GetColumnText(ciMatchText));
+			Assert.AreEqual(Copy(_lineText, 1, columns[i] - 1), row.GetColumnText(ciText));
+			Assert.AreEqual(Copy(_lineText, columns[i] + Length(matchTexts[i]), MaxInt), row.GetColumnText(ciTextAfterMatch));
+			Assert.AreEqual(_lineText, row.GetColumnText(ciText) + row.GetColumnText(ciMatchText)
+				+ row.GetColumnText(ciTextAfterMatch), 'Each result should preserve the full source line');
+		end;
+	finally
+		jsonObj.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonManySubmatchesTest(_matchCount : Integer; _separated : Boolean);
+var
+	parser : ISearchResultLineParser;
+	jsonObj, dataObj : TJSONObject;
+	submatches : TJSONArray;
+	matchTexts : TArray<string>;
+	columns : TArray<Integer>;
+	lineText : string;
+begin
+	SetLength(matchTexts, _matchCount);
+	SetLength(columns, _matchCount);
+	lineText := 'ä🚀 before ';
+	jsonObj := TJSONObject.Create;
+	try
+		jsonObj.AddPair('type', 'match');
+		dataObj := TJSONObject.Create;
+		jsonObj.AddPair('data', dataObj);
+		dataObj.AddPair('path', TJSONObject.Create.AddPair('text', 'many.pas'));
+		dataObj.AddPair('line_number', TJSONNumber.Create(23));
+		submatches := TJSONArray.Create;
+		dataObj.AddPair('submatches', submatches);
+		for var i := 0 to _matchCount - 1 do begin
+			if _separated and (i > 0) then begin
+				lineText := lineText + ' | ';
+			end;
+			case i mod 3 of
+				0 : matchTexts[i] := 'match' + IntToStr(i + 1);
+				1 : matchTexts[i] := '中文' + IntToStr(i + 1);
+				2 : matchTexts[i] := '🚀' + IntToStr(i + 1);
+			end;
+			columns[i] := Length(lineText) + 1;
+			var startByte := TEncoding.UTF8.GetByteCount(lineText);
+			submatches.AddElement(TJSONObject.Create
+				.AddPair('match', TJSONObject.Create.AddPair('text', matchTexts[i]))
+				.AddPair('start', TJSONNumber.Create(startByte))
+				.AddPair('end', TJSONNumber.Create(startByte + TEncoding.UTF8.GetByteCount(matchTexts[i]))));
+			lineText := lineText + matchTexts[i];
+		end;
+		lineText := lineText + ' after  ' + CRLF;
+		dataObj.AddPair('lines', TJSONObject.Create.AddPair('text', lineText));
+
+		parser := TJsonMatchLineParser.Create();
+		parser.SearchParams := FSearchParamMock;
+		parser.ParseLine(11, jsonObj.ToJSON);
+		var results := parser.ParseResults;
+		Assert.AreEqual(_matchCount, Length(results), 'All submatches should be returned');
+		Assert.IsTrue(parser.ParseResult = results[0], 'ParseResult should remain the first submatch');
+		for var i := 0 to High(results) do begin
+			var row := results[i];
+			var message := Format('Submatch %d of %d', [i + 1, _matchCount]);
+			Assert.IsFalse(row.IsError, message + ': ' + row.ErrorText);
+			Assert.AreEqual(COLUMN_NUM, row.Columns.Count, message);
+			Assert.AreEqual('many.pas', row.FilePath, message);
+			Assert.AreEqual(23, row.Row, message);
+			Assert.AreEqual(11, row.ParsedRowNr, message);
+			Assert.AreEqual(columns[i], row.ColBegin, message);
+			Assert.AreEqual(columns[i] + Length(matchTexts[i]), row.ColEnd, message);
+			Assert.AreEqual(matchTexts[i], row.GetColumnText(ciMatchText), message);
+			Assert.AreEqual(Copy(lineText, 1, columns[i] - 1), row.GetColumnText(ciText), message);
+			Assert.AreEqual(Copy(lineText, columns[i] + Length(matchTexts[i]), MaxInt),
+				row.GetColumnText(ciTextAfterMatch), message);
+		end;
+	finally
+		jsonObj.Free;
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonMultipleSubmatchesWithBytesTest;
+var
+	parser : ISearchResultLineParser;
+begin
+	parser := TJsonMatchLineParser.Create();
+	parser.ParseLine(0, '{"type":"match","data":{"path":{"text":"binary.bin"},' +
+		'"lines":{"bytes":"YmluYXJ5IGRhdGE="},"line_number":2,"submatches":[' +
+		'{"match":{"text":"binary"},"start":0,"end":6},{"match":{"text":"data"},"start":7,"end":11}]}}');
+	var results := parser.ParseResults;
+	Assert.AreEqual(2, Length(results));
+	Assert.IsFalse(results[0].IsError, results[0].ErrorText);
+	Assert.IsFalse(results[1].IsError, results[1].ErrorText);
+	Assert.AreEqual('binary', results[0].GetColumnText(ciMatchText));
+	Assert.AreEqual('data', results[1].GetColumnText(ciMatchText));
+	Assert.AreEqual(1, results[0].ColBegin);
+	Assert.AreEqual(7, results[0].ColEnd);
+	Assert.AreEqual(8, results[1].ColBegin);
+	Assert.AreEqual(12, results[1].ColEnd);
+	for var row in results do begin
+		Assert.AreEqual('binary data', row.GetColumnText(ciText) + row.GetColumnText(ciMatchText)
+			+ row.GetColumnText(ciTextAfterMatch));
+	end;
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonSubmatchesResetTest;
+var
+	parser : ISearchResultLineParser;
+begin
+	parser := TJsonMatchLineParser.Create();
+	parser.ParseLine(0, '{"type":"match","data":{"path":{"text":"test.pas"},"lines":{"text":"test test"},' +
+		'"line_number":1,"submatches":[{"start":0,"end":4},{"start":5,"end":9}]}}');
+	var previousResults := parser.ParseResults;
+	Assert.AreEqual(2, Length(previousResults));
+
+	parser.ParseLine(1, '{"type":"context","data":{"path":{"text":"test.pas"},"lines":{"text":"context"},' +
+		'"line_number":2,"submatches":[]}}');
+	Assert.AreEqual(1, Length(parser.ParseResults), 'Context should not retain earlier matches');
+	Assert.AreEqual('context', parser.ParseResult.GetColumnText(ciText));
+	Assert.AreEqual('test', previousResults[0].GetColumnText(ciMatchText), 'Previous results should remain unchanged');
+
+	parser.ParseLine(2, 'invalid JSON');
+	Assert.AreEqual(1, Length(parser.ParseResults), 'Errors should not retain earlier matches');
+	Assert.IsTrue(parser.ParseResults[0].IsError);
+
+	parser.ParseLine(3, '{"type":"match","data":{"path":{"text":"test.pas"},"lines":{"text":"no match"},' +
+		'"line_number":3,"submatches":[]}}');
+	Assert.AreEqual(1, Length(parser.ParseResults));
+	Assert.IsFalse(parser.ParseResult.IsError, 'A valid line should clear the previous error');
+	Assert.AreEqual('no match', parser.ParseResult.GetColumnText(ciText));
+	Assert.AreEqual('', parser.ParseResult.GetColumnText(ciMatchText));
+end;
+
+procedure TRipGrepJsonMatchTest.ParseJsonZeroLengthSubmatchesTest;
+var
+	parser : ISearchResultLineParser;
+begin
+	parser := TJsonMatchLineParser.Create();
+	parser.ParseLine(0, '{"type":"match","data":{"path":{"text":"test.pas"},"lines":{"text":"abc"},' +
+		'"line_number":1,"submatches":[{"start":0,"end":0},{"start":3,"end":3}]}}');
+	var results := parser.ParseResults;
+	Assert.AreEqual(2, Length(results));
+	Assert.AreEqual(1, results[0].ColBegin);
+	Assert.AreEqual(4, results[1].ColBegin);
+	for var row in results do begin
+		Assert.IsFalse(row.IsError, row.ErrorText);
+		Assert.AreEqual(row.ColBegin, row.ColEnd);
+		Assert.AreEqual('', row.GetColumnText(ciMatchText));
+		Assert.AreEqual('abc', row.GetColumnText(ciText) + row.GetColumnText(ciTextAfterMatch));
 	end;
 end;
 

@@ -164,9 +164,11 @@ begin
 			ifSearchParam := TSearchParams.Create(FHistObject.GetSearchTextWithOptions);
 			ifParser.SearchParams := ifSearchParam;
 			ifParser.ParseLine(FLineNr, FLine, FIsLast);
-			oParsed := TParsedObjectRow.Create(ifParser.ParseResult, FHistObject.ParserType);
 			try
-				FData.Add(oParsed);
+				for var parsedRow in ifParser.ParseResults do begin
+					oParsed := TParsedObjectRow.Create(parsedRow, FHistObject.ParserType);
+					FData.Add(oParsed);
+				end;
 			finally
 				ifParser := nil;
 				oParsed := nil;

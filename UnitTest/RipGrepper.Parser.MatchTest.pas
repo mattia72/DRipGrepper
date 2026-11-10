@@ -86,6 +86,8 @@ begin
 	parser.ParseLine(0, _s);
 	var
 	pr := parser.ParseResult;
+	Assert.AreEqual(1, Length(parser.ParseResults), 'VimGrep lines should still produce one result');
+	Assert.IsTrue(parser.ParseResults[0] = pr);
 	Assert.IsTrue(not pr.IsError,
 		{ } 'Line:' + CRLF +
 		{ } _s + CRLF +
@@ -133,6 +135,8 @@ begin
 	parseRes := (m as TVimGrepMatchLineParser).ParseResult;
 
 	Assert.IsTrue(not parseRes.IsError, 'Line parsed with error: ' + _s);
+	Assert.AreEqual(1, Length(m.ParseResults), 'Pretty lines should still produce one result');
+	Assert.IsTrue(m.ParseResults[0] = parseRes);
 
 	Assert.IsTrue(parseRes.Columns.Count = 7,
 		{ } 'Line:' + CRLF +

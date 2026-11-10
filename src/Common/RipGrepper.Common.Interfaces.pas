@@ -83,8 +83,11 @@ type
 
 	ISearchResultLineParser = interface(ILineParser)
 		['{6C902F54-68CC-441A-A576-201EF460DB04}']
+		function GetParseResults : TArray<IParsedObjectRow>;
 		function GetSearchParams : ISearchParams;
 		procedure SetSearchParams(const Value : ISearchParams);
+		// All result rows from the last input line, in submatch order.
+		property ParseResults : TArray<IParsedObjectRow> read GetParseResults;
 		property SearchParams : ISearchParams read GetSearchParams write SetSearchParams;
 	end;
 

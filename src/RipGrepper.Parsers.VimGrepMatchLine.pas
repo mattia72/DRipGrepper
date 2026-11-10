@@ -16,6 +16,7 @@ type
 			FPrettyRegex : TRegEx;
 			FSearchParams : ISearchParams;
 			function GetParseResult : IParsedObjectRow;
+			function GetParseResults : TArray<IParsedObjectRow>;
 			procedure SetParseResult(const Value : IParsedObjectRow);
 			procedure SetRgResultLineParseError(out row : TArrayEx<TColumnData>; const _sLine : string);
 			function Validate(var row : TArrayEx<TColumnData>) : Boolean; virtual;
@@ -31,6 +32,7 @@ type
 		public
 			property ParserData : ILineParserData read FParserData write FParserData;
 			property ParseResult : IParsedObjectRow read GetParseResult write SetParseResult;
+			property ParseResults : TArray<IParsedObjectRow> read GetParseResults;
 			property SearchParams : ISearchParams read GetSearchParams write SetSearchParams;
 			constructor Create; virtual;
 			destructor Destroy; override;
@@ -80,6 +82,11 @@ end;
 function TVimGrepMatchLineParser.GetParseResult : IParsedObjectRow;
 begin
 	Result := FParseResult;
+end;
+
+function TVimGrepMatchLineParser.GetParseResults : TArray<IParsedObjectRow>;
+begin
+	Result := [FParseResult];
 end;
 
 function TVimGrepMatchLineParser.GetSearchParams : ISearchParams;
