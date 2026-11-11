@@ -749,21 +749,106 @@ function New-ReleaseWithAsset {
     }
 }
 
+function Clear-ScoopTokenEnvironment {
+  # SilentlyContinue still feeds missing-path errors into an enclosing ErrorVariable.
+  foreach ($name in 'SCOOP_GH_TOKEN', 'GH_TOKEN', 'GITHUB_TOKEN') {
+    $tokenPath = "Env:$name"
+    if (Test-Path -LiteralPath $tokenPath) {
+      Remove-Item -LiteralPath $tokenPath -ErrorAction Stop
+    }
+  }
+}
+
+function Set-ScoopAssetTemplates {
+    param (
+        [string]$ManifestPath
+    )
+
+    $manifest = Get-Content -LiteralPath $ManifestPath -Raw | ConvertFrom-Json
+    $assetGroups = @{}
+    $patterns = @()
+    $hasVersion = $false
+    foreach ($architecture in $manifest.autoupdate.architecture.PSObject.Properties) {
+        $currentArchitecture = $manifest.architecture.($architecture.Name)
+        $currentUrls = @()
+        $currentHashes = @()
+        $assetIndex = -1
+        $urls = @(foreach ($url in $currentArchitecture.url) {
+            $assetIndex++
+            if (-not (Test-DelphiDeploymentEnabled -Name (Split-Path $url -Leaf))) {
+                continue
+            }
+            $currentUrls += $url
+            $currentHashes += @($currentArchitecture.hash)[$assetIndex]
+            if ($url -notmatch '/(?<Family>DRipGrepper\.(?:x86|x64)|DRipExtension\.(?:Dll|Bpl)\.(?:x86|x64)\.Delphi\d+(?:\.\d+)?)\.v?[^/]+\.zip$') {
+                throw "Cannot determine Scoop asset family from $url"
+            }
+            $family = $matches.Family
+            if (-not $assetGroups.ContainsKey($family)) {
+                $group = "asset$($assetGroups.Count)"
+                $assetGroups[$family] = $group
+                $versionPattern = '\d+\.\d+\.\d+(?:\.\d+)?(?:-[0-9A-Za-z.-]+)?'
+                # Scoop's version includes the standalone build, while every URL
+                # is captured independently (DLL and EXE builds can differ).
+                if (-not $hasVersion -and $family -like 'DRipGrepper.*') {
+                    # Scoop reads capture group 1 as the version.
+                    $versionPattern = "($versionPattern)"
+                    $hasVersion = $true
+                }
+                $urlPattern = 'https://github\.com/' + [regex]::Escape("$global:Owner/$global:Repo") +
+                    '/releases/download/[^/\s"]+/' + [regex]::Escape($family) + '\.v?' + $versionPattern + '\.zip'
+                $patterns += '(?=.*?(?<' + $group + '>' + $urlPattern + '))'
+            }
+            '$match' + (Get-Culture).TextInfo.ToTitleCase($assetGroups[$family])
+        })
+        if ($urls.Count -eq 0) {
+            throw "No supported Scoop assets for $($architecture.Name)"
+        }
+        $architecture.Value.url = $urls
+        # Scoop updates array entries in place, so remove paused URL/hash pairs
+        # here to prevent obsolete trailing entries surviving the update.
+        $currentArchitecture.url = $currentUrls
+        $currentArchitecture.hash = $currentHashes
+    }
+    if (-not $hasVersion) {
+        throw 'No standalone asset found in the Scoop autoupdate configuration.'
+    }
+
+    $manifest.checkver = [ordered]@{
+        url = $global:Url
+        # Sort numerically before matching so multiple builds in a release
+        # resolve to the latest archive for each binary family.
+        script = @(
+            '$release = $page | ConvertFrom-Json | Where-Object { -not $_.draft } | Select-Object -First 1'
+            '$release.assets | Sort-Object -Property @{ Expression = {'
+            '    if ($_.name -match "\.v?(\d+\.\d+\.\d+(?:\.\d+)?)(?:-[0-9A-Za-z.-]+)?\.zip$") { [version]$matches[1] } else { [version]"0.0" }'
+            '}; Descending = $true } | ForEach-Object { $_.browser_download_url }'
+        )
+        regex = '(?s)^' + ($patterns -join '')
+    }
+    $manifest | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $ManifestPath -Encoding utf8NoBOM
+}
+
 function Update-ScoopManifest {
 
     Push-Location $env:SCOOP\buckets\my-scoop
-    .\bin\checkver.ps1 -Update
-    if ( -not $(Test-YesAnswer "Commit updated manifests?")) {
-        Write-Error "Commit canceled" -ErrorAction Stop
+    try {
+        Clear-ScoopTokenEnvironment
+        Set-ScoopAssetTemplates -ManifestPath '.\bucket\dripgrepper.json'
+        .\bin\checkver.ps1 dripgrepper -ForceUpdate -ThrowError
+        if ( -not $(Test-YesAnswer "Commit updated manifests?")) {
+            Write-Error "Commit canceled" -ErrorAction Stop
+        }
+        git add .
+        git commit -m "dripgrepper $global:Version"
+        if ( -not $(Test-YesAnswer "Push updated manifests?")) {
+            Write-Error "Push canceled" -ErrorAction Stop
+        }
+        git push
     }
-    git add . 
-    git commit -m "dripgrepper $global:Version"
-    if ( -not $(Test-YesAnswer "Push updated manifests?")) {
-        Write-Error "Push canceled" -ErrorAction Stop
+    finally {
+        Pop-Location
     }
-    git push
-
-    Pop-Location
     scoop update dripgrepper
 }
 
