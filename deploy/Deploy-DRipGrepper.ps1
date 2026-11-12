@@ -7,7 +7,7 @@ param (
     [switch] $BuildUIComponents,    # Build the DRipGrepperComponents package
     [switch] $BuildUnittest,        # Build unit tests only
     [switch] $RunUnittest,          # Run unit tests only (requires built unit tests)
-    [switch] $DeployToGitHub,       # Deploy release to GitHub
+    [switch] $DeployToGitHub,       # Deploy release to GitHub, then update Scoop
     [switch] $LocalDeploy,          # Deploy locally
     [switch] $DeployToTransferDrive, # Deploy to transfer drive
     [switch] $Force,                # Force operations without prompts
@@ -273,6 +273,38 @@ function Get-CurrentVersionChangesFromChangelog {
     
     # Join the changes and return
     return ($currentVersionChanges -join "`n").Trim()
+}
+
+function Update-ChangelogReleaseDate {
+    param (
+        [string]$ChangelogPath = $global:Changelog,
+        [string]$Version = $global:Version,
+        [switch]$DryRun
+    )
+
+    $content = [System.IO.File]::ReadAllText($ChangelogPath)
+    $heading = [regex]::Match($content, '(?m)^(?<Heading>## \[(?<Version>v?\d+\.\d+[^\]\r\n]*)\])[^\r\n]*')
+    if (-not $heading.Success -or
+        ($heading.Groups['Version'].Value -replace '^v', '') -ne ($Version -replace '^v', '')) {
+        throw "The newest changelog entry does not match release $Version."
+    }
+
+    $date = (Get-Date).ToString('yyyy-MM-dd', [System.Globalization.CultureInfo]::InvariantCulture)
+    $replacement = "$($heading.Groups['Heading'].Value) - $date"
+    if ($heading.Value -eq $replacement) { return $false }
+    if ($DryRun) {
+        Write-Host "DRY RUN: Would set the changelog date for $Version to $date" -ForegroundColor Cyan
+        return $false
+    }
+
+    # Preserve the existing line endings and UTF-8 BOM, if present.
+    $bytes = [System.IO.File]::ReadAllBytes($ChangelogPath)
+    $hasBom = $bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF
+    $encoding = [System.Text.UTF8Encoding]::new($hasBom)
+    $updated = $content.Substring(0, $heading.Index) + $replacement + $content.Substring($heading.Index + $heading.Length)
+    [System.IO.File]::WriteAllText($ChangelogPath, $updated, $encoding)
+    Write-Host "Set the changelog date for $Version to $date" -ForegroundColor Green
+    return $true
 }
 
 function Build-StandaloneRelease {
@@ -707,6 +739,9 @@ function New-ReleaseWithAsset {
         $zipArr | Format-Table -AutoSize -Property File, LastWriteTime, Length
     }
     if ($DeployToGitHub) {
+        if ($latestAssets.Count -eq 0) {
+            throw 'No release assets selected. GitHub and Scoop deployment stopped.'
+        }
         $release = $null
         if (-not $DryRun) {
             try {
@@ -724,6 +759,9 @@ function New-ReleaseWithAsset {
         }
         else {
             # Generate description and notes only when creating a release.
+            if (Update-ChangelogReleaseDate -DryRun:$DryRun) {
+                throw "CHANGELOG.md was updated. Commit and push '$global:Changelog', then run deployment again."
+            }
             $releaseDescription = Get-CurrentVersionChangesFromChangelog
             $release = New-Release -url $global:Url -headers $global:headers -version $global:Version -description $releaseDescription -preRelease:$global:PreRelease -dryRun:$DryRun
 
@@ -736,6 +774,9 @@ function New-ReleaseWithAsset {
         }
 
         $ReleaseID = $release.id
+        if (-not $ReleaseID) {
+            throw "GitHub did not return an ID for release $global:Version."
+        }
         $existingAssetNames = @($release.assets | ForEach-Object { $_.name })
 
         $latestAssets | ForEach-Object {
@@ -743,7 +784,10 @@ function New-ReleaseWithAsset {
                 Write-Host "Asset $($_.Name) already exists in release $global:Version. Skipping." -ForegroundColor Yellow
             }
             else {
-                Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_.FullName -dryRun:$DryRun
+                $uploaded = Add-AssetToRelease -owner $global:Owner -repo $global:Repo -token $global:Token -releaseID $ReleaseID -zipFilePath $_.FullName -dryRun:$DryRun
+                if (-not $DryRun -and -not $uploaded) {
+                    throw "Asset upload failed: $($_.Name). Scoop deployment stopped."
+                }
             }
         }
     }
@@ -831,6 +875,11 @@ function Set-ScoopAssetTemplates {
 
 function Update-ScoopManifest {
 
+    if ($DryRun) {
+        Write-Host 'DRY RUN: Would update, commit, and push the Scoop manifest, then update dripgrepper.' -ForegroundColor Cyan
+        return
+    }
+
     Push-Location $env:SCOOP\buckets\my-scoop
     try {
         Clear-ScoopTokenEnvironment
@@ -839,17 +888,27 @@ function Update-ScoopManifest {
         if ( -not $(Test-YesAnswer "Commit updated manifests?")) {
             Write-Error "Commit canceled" -ErrorAction Stop
         }
-        git add .
-        git commit -m "dripgrepper $global:Version"
+        git add -- bucket/dripgrepper.json
+        if ($LASTEXITCODE -ne 0) { throw 'Failed to stage the Scoop manifest.' }
+        git diff --cached --quiet -- bucket/dripgrepper.json
+        if ($LASTEXITCODE -eq 1) {
+            git commit --only -m "dripgrepper $global:Version" -- bucket/dripgrepper.json
+            if ($LASTEXITCODE -ne 0) { throw 'Failed to commit the Scoop manifest.' }
+        }
+        elseif ($LASTEXITCODE -ne 0) {
+            throw 'Failed to check the Scoop manifest changes.'
+        }
         if ( -not $(Test-YesAnswer "Push updated manifests?")) {
             Write-Error "Push canceled" -ErrorAction Stop
         }
         git push
+        if ($LASTEXITCODE -ne 0) { throw 'Failed to push the Scoop manifest.' }
     }
     finally {
         Pop-Location
     }
     scoop update dripgrepper
+    if ($LASTEXITCODE -ne 0) { throw 'Failed to update the local Scoop installation of dripgrepper.' }
 }
 
 function New-Deploy {
@@ -890,9 +949,12 @@ function New-Deploy {
             }
         }
     }
-    if ($UpdateScoopManifest) {
-        #Update scoop with latest version from github
+    if ($UpdateScoopManifest -or ($DeployToGitHub -and -not $TestRepo)) {
+        # Reached only after GitHub release creation and all uploads succeeded.
         Update-ScoopManifest
+    }
+    elseif ($DeployToGitHub -and $TestRepo) {
+        Write-Host 'Skipping automatic Scoop deployment for the test repository.' -ForegroundColor Yellow
     }
 }
 

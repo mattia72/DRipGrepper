@@ -107,6 +107,7 @@ function Add-AssetToRelease {
     # GitHub API expects raw binary data for asset uploads
     $CurlArgument = @(
         '-L'
+        '--fail'
         '-X', 'POST'
         '-H', "Accept: application/vnd.github+json"
         '-H', "Authorization: Bearer $token"
