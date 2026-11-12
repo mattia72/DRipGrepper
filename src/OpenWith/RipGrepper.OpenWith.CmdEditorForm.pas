@@ -147,8 +147,6 @@ begin
 		form.CommandItem := ci;
 		if mrOk = form.ShowModal() then begin
 			Result := form.CommandItem;
-		end else begin
-			Result := ci;
 		end;
 	finally
 		form.Free;
