@@ -1,6 +1,6 @@
 ﻿# Changelog
 
-## [v5.1.0-beta] - 2026-11-10
+## [v5.1.0-beta] - 2026-11-12
 
 *In memory of Richard.*
 
