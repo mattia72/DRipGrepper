@@ -13,18 +13,10 @@ inherited OpenWithCommandEditor: TOpenWithCommandEditor
     ExplicitTop = 384
     ExplicitWidth = 468
     inherited btnOk: TButton
-      Left = 304
-      Top = 14
       Action = ActionOk
-      ExplicitLeft = 304
-      ExplicitTop = 14
     end
     inherited btnCancel: TButton
-      Left = 385
-      Top = 14
       Action = ActionCancel
-      ExplicitLeft = 385
-      ExplicitTop = 14
     end
   end
   object Panel1: TPanel [1]

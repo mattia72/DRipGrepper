@@ -53,7 +53,6 @@ uses
 
 const
 	RG_OPTIONS_PADDING_LEFT = 4;
-	RG_OPTIONS_PADDING_TOP = 4;
 	GB_EXPERT_DESIGNED_HEIGHT = 175; // Designed height from .dfm file
 	MAX_COMBO_DISPLAY_LENGTH = 1024; // Max chars to display in combo; longer paths get summarized
 	MAX_HINT_PATHS = 30; // Max number of paths to show in a hint tooltip
@@ -370,10 +369,6 @@ begin
 	// Disable theme font painting so Font.Color works on cmbSearchDir
 	cmbSearchDir.StyleElements := cmbSearchDir.StyleElements - [seFont];
 	cmbSearchDir.SetDefaultFontColor;
-
-	// align buttons a bit lower
-	btnOk.Top := btnOk.Top + RG_OPTIONS_PADDING_TOP;
-	btnCancel.Top := btnCancel.Top + RG_OPTIONS_PADDING_TOP;
 
 	// Set minimum width based on widest options panel
 	SetMinimumWidthFromOptionsPanels();

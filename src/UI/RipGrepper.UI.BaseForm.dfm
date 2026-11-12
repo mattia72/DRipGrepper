@@ -17,17 +17,22 @@ object BaseForm: TBaseForm
     Height = 45
     Align = alBottom
     BevelOuter = bvNone
+    Padding.Top = 10
+    Padding.Right = 10
+    Padding.Bottom = 10
     ParentBackground = False
     TabOrder = 0
-    DesignSize = (
-      400
-      45)
     object btnOk: TButton
+      AlignWithMargins = True
       Left = 234
       Top = 10
       Width = 75
       Height = 25
-      Anchors = [akRight, akBottom]
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 6
+      Margins.Bottom = 0
+      Align = alRight
       Caption = 'OK'
       Default = True
       ImageIndex = 0
@@ -37,11 +42,16 @@ object BaseForm: TBaseForm
       TabOrder = 0
     end
     object btnCancel: TButton
+      AlignWithMargins = True
       Left = 315
       Top = 10
       Width = 75
       Height = 25
-      Anchors = [akRight, akBottom]
+      Margins.Left = 0
+      Margins.Top = 0
+      Margins.Right = 0
+      Margins.Bottom = 0
+      Align = alRight
       Cancel = True
       Caption = 'Cancel'
       ImageIndex = 1

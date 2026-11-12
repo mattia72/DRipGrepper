@@ -148,13 +148,9 @@ inherited OpenWithCmdList: TOpenWithCmdList
     Width = 421
     TabOrder = 2
     inherited btnOk: TButton
-      Left = 257
-      Top = 11
       Action = ActionOk
     end
     inherited btnCancel: TButton
-      Left = 338
-      Top = 11
       Action = ActionCancel
     end
   end

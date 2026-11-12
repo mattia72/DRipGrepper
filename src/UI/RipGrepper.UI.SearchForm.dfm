@@ -149,12 +149,6 @@ inherited RipGrepperSearchDialogForm: TRipGrepperSearchDialogForm
     Top = 520
     Width = 559
     TabOrder = 2
-    inherited btnOk: TButton
-      Left = 395
-    end
-    inherited btnCancel: TButton
-      Left = 476
-    end
     object cbExpertMode: TCheckBox
       Left = 16
       Top = 11

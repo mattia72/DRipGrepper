@@ -10,12 +10,6 @@ inherited AdvancedForm: TAdvancedForm
     Top = 310
     Width = 559
     TabOrder = 1
-    inherited btnOk: TButton
-      Left = 267
-    end
-    inherited btnCancel: TButton
-      Left = 348
-    end
   end
   object ScrollBox1: TScrollBox [1]
     Left = 0

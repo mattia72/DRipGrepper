@@ -23,7 +23,8 @@ uses
 	RipGrepper.UI.SVGIconDataModule,
 	SVGIconVirtualImageList,
 	RipGrepper.Tools.FileUtils,
-	ArrayEx;
+	ArrayEx, 
+	Vcl.VirtualImageList;
 
 type
 	TCheckBoxState = (csbNone, csbTrue, csbFalse);

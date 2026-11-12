@@ -140,8 +140,16 @@ inherited OpenWithConfigForm: TOpenWithConfigForm
     FFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FFFFE3C7FC0003C7F80007C7F0000FC000
     FFFFE003FFFFE007FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
   Position = poDesigned
+  ExplicitLeft = 3
+  ExplicitTop = 3
+  ExplicitWidth = 371
+  ExplicitHeight = 316
   TextHeight = 15
   inherited PanelBottom: TPanel
+    Top = 232
+    Width = 355
+    ExplicitTop = 224
+    ExplicitWidth = 353
     inherited btnOk: TButton
       Action = ActionOk
     end
@@ -149,11 +157,11 @@ inherited OpenWithConfigForm: TOpenWithConfigForm
       Action = ActionCancel
     end
   end
-  object pnlMain: TPanel
+  object pnlMain: TPanel [1]
     Left = 0
     Top = 0
     Width = 355
-    Height = 227
+    Height = 232
     Margins.Left = 8
     Margins.Top = 8
     Margins.Right = 8
@@ -161,6 +169,8 @@ inherited OpenWithConfigForm: TOpenWithConfigForm
     Align = alClient
     BevelOuter = bvNone
     TabOrder = 1
+    ExplicitWidth = 353
+    ExplicitHeight = 224
     object ToolBar1: TToolBar
       AlignWithMargins = True
       Left = 8
@@ -173,6 +183,7 @@ inherited OpenWithConfigForm: TOpenWithConfigForm
       Caption = 'ToolBar1'
       Images = SVGIconImageList1
       TabOrder = 0
+      ExplicitWidth = 337
       object tbPlus: TToolButton
         Left = 0
         Top = 0
@@ -204,7 +215,7 @@ inherited OpenWithConfigForm: TOpenWithConfigForm
       Left = 3
       Top = 31
       Width = 349
-      Height = 193
+      Height = 198
       Align = alClient
       Checkboxes = True
       Columns = <
@@ -225,6 +236,8 @@ inherited OpenWithConfigForm: TOpenWithConfigForm
       TabOrder = 1
       ViewStyle = vsReport
       OnDblClick = lvCommandsDblClick
+      ExplicitWidth = 347
+      ExplicitHeight = 190
     end
   end
   object ActionListConfig: TActionList
@@ -290,37 +303,43 @@ inherited OpenWithConfigForm: TOpenWithConfigForm
     Top = 526
   end
   object SVGIconImageList1: TSVGIconVirtualImageList
-    ImageCollection = SVGIconDataModule.SVGIconImageCollection1
     Images = <
       item
+        CollectionIndex = 52
         CollectionName = 'reply'
         Name = 'reply'
       end
       item
+        CollectionIndex = 53
         CollectionName = 'arrow-up'
         Name = 'arrow-up'
       end
       item
+        CollectionIndex = 54
         CollectionName = 'arrow-down'
         Name = 'arrow-down'
       end
       item
+        CollectionIndex = 18
         CollectionName = 'rocket'
         Name = 'rocket'
       end
       item
+        CollectionIndex = 55
         CollectionName = 'add'
         Name = 'add'
       end
       item
+        CollectionIndex = 56
         CollectionName = 'remove'
         Name = 'remove'
       end
       item
+        CollectionIndex = 48
         CollectionName = 'folder-opened'
         Name = 'folder-opened'
       end>
-    Scaled = True
+    ImageCollection = SVGIconDataModule.SVGIconImageCollection1
     Left = 192
     Top = 112
   end

@@ -10,12 +10,6 @@ inherited ExtensionSettingsForm: TExtensionSettingsForm
     Top = 402
     Width = 496
     TabOrder = 1
-    inherited btnOk: TButton
-      Left = 94
-    end
-    inherited btnCancel: TButton
-      Left = 175
-    end
   end
   object pnlMiddle: TPanel [1]
     Left = 0
